@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn C Programming - Concept to Code</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .topic-card:hover { transform: translateY(-2px); }
+        .progress-ring { transform: rotate(-90deg); }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .timer-ring { stroke-dasharray: 283; stroke-dashoffset: 283; transition: stroke-dashoffset 1s linear; }
+
+        /* Enhanced animations and interactions */
+.option-button:hover,
+.code-option:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.option-button.selected,
+.code-option.selected {
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+}
+
+/* Navigation active states */
+.nav-btn.active {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 8px 16px;
+}
+
+/* Progress animations */
+.progress-ring circle {
+    transition: stroke-dashoffset 0.8s ease-in-out;
+}
+
+/* Card hover effects */
+.topic-card:hover {
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+}
+
+/* Timer pulsing effect */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.timer-warning {
+    animation: pulse 1s infinite;
+}
+
+/* Button loading states */
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Mobile responsiveness improvements */
+@media (max-width: 768px) {
+    .grid {
+        gap: 1rem;
+    }
+    
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    pre code {
+        font-size: 0.875rem;
+    }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+    .bg-gray-50 {
+        background-color: #111827;
+    }
+    
+    .bg-white {
+        background-color: #1f2937;
+    }
+    
+    .text-gray-800 {
+        color: #f9fafb;
+    }
+    
+    .text-gray-600 {
+        color: #d1d5db;
+    }
+}
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-code text-2xl"></i>
+                    <h1 class="text-2xl font-bold">Learn C Programming</h1>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <button onclick="showSection('home')" class="nav-btn hover:text-blue-200 transition-colors">
+                        <i class="fas fa-home mr-2"></i>Home
+                    </button>
+                    <button onclick="showSection('learn')" class="nav-btn hover:text-blue-200 transition-colors">
+                        <i class="fas fa-graduation-cap mr-2"></i>Learn
+                    </button>
+                    <button onclick="showSection('analytics')" class="nav-btn hover:text-blue-200 transition-colors">
+                        <i class="fas fa-chart-bar mr-2"></i>Analytics
+                    </button>
+                    <button onclick="showSection('progress')" class="nav-btn hover:text-blue-200 transition-colors">
+                        <i class="fas fa-trophy mr-2"></i>Progress
+                    </button>
+                    <button onclick="showSection('concepts')" class="nav-btn hover:text-blue-200 transition-colors">
+                        <i class="fas fa-lightbulb mr-2"></i>Concepts
+                    </button>
+                </nav>
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-white">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-blue-700 px-4 py-2">
+            <button onclick="showSection('home')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+                <i class="fas fa-home mr-2"></i>Home
+            </button>
+            <button onclick="showSection('learn')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+                <i class="fas fa-graduation-cap mr-2"></i>Learn
+            </button>
+            <button onclick="showSection('analytics')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+                <i class="fas fa-chart-bar mr-2"></i>Analytics
+            </button>
+            <button onclick="showSection('progress')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+                <i class="fas fa-trophy mr-2"></i>Progress
+            </button>
+            <button onclick="showSection('concepts')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+                <i class="fas fa-lightbulb mr-2"></i>Concepts
+            </button>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Home Section -->
+        <section id="home-section" class="section">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Master C Programming</h2>
+                <p class="text-xl text-gray-600">Interactive learning with smart MCQs and concept-to-code mapping</p>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-3xl font-bold text-blue-600" id="total-topics">0</div>
+                    <div class="text-gray-600">Topics Available</div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-3xl font-bold text-green-600" id="completed-topics">0</div>
+                    <div class="text-gray-600">Completed</div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-3xl font-bold text-purple-600" id="avg-score">0%</div>
+                    <div class="text-gray-600">Average Score</div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-3xl font-bold text-orange-600" id="total-time">0m</div>
+                    <div class="text-gray-600">Study Time</div>
+                </div>
+            </div>
+
+            <!-- Topics Grid -->
+            <div id="topics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Topics will be loaded here -->
+            </div>
+        </section>
+
+        <!-- Learn Section -->
+        <section id="learn-section" class="section hidden">
+            <div class="max-w-4xl mx-auto">
+                <!-- Session Settings -->
+                <div id="session-setup" class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h3 class="text-2xl font-bold mb-4">Start Learning Session</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Select Topic:</label>
+                            <select id="topic-select" class="w-full p-3 border border-gray-300 rounded-lg">
+                                <option value="">Choose a topic...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Session Duration:</label>
+                            <select id="duration-select" class="w-full p-3 border border-gray-300 rounded-lg">
+                                <option value="5">5 minutes</option>
+                                <option value="10" selected>10 minutes</option>
+                                <option value="15">15 minutes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="startSession()" class="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-play mr-2"></i>Start Session
+                    </button>
+                </div>
+
+                <!-- MCQ Session -->
+                <div id="mcq-session" class="hidden">
+                    <!-- Timer -->
+                    <div class="bg-white rounded-lg shadow-md p-4 mb-6 flex justify-between items-center">
+                        <div class="flex items-center">
+                            <svg class="w-16 h-16 mr-4">
+                                <circle cx="32" cy="32" r="28" stroke="#e5e7eb" stroke-width="4" fill="none"></circle>
+                                <circle id="timer-circle" cx="32" cy="32" r="28" stroke="#3b82f6" stroke-width="4" 
+                                        fill="none" class="timer-ring"></circle>
+                            </svg>
+                            <div>
+                                <div id="time-remaining" class="text-2xl font-bold text-gray-800">10:00</div>
+                                <div class="text-gray-600">Time Remaining</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div id="question-counter" class="text-lg font-semibold text-gray-800">Question 1 of 10</div>
+                            <div id="score-display" class="text-gray-600">Score: 0</div>
+                        </div>
+                    </div>
+
+                    <!-- Question Card -->
+                    <div id="question-card" class="bg-white rounded-lg shadow-md p-6 mb-6">
+                        <div id="question-text" class="text-xl font-semibold mb-4 text-gray-800"></div>
+                        <div id="options-container" class="space-y-3">
+                            <!-- Options will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div class="flex justify-between">
+                        <button onclick="previousQuestion()" id="prev-btn" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 disabled:opacity-50" disabled>
+                            <i class="fas fa-chevron-left mr-2"></i>Previous
+                        </button>
+                        <button onclick="nextQuestion()" id="next-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            Next<i class="fas fa-chevron-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Code MCQ Section -->
+                <div id="code-mcq-section" class="hidden">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-2xl font-bold mb-4">Code Analysis Questions</h3>
+                        <div id="code-question-card">
+                            <!-- Code questions will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div id="results-section" class="hidden">
+                    <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                        <h3 class="text-2xl font-bold mb-4">Session Complete!</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <div id="final-score" class="text-3xl font-bold text-blue-600">0%</div>
+                                <div class="text-gray-600">Final Score</div>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <div id="correct-answers" class="text-3xl font-bold text-green-600">0</div>
+                                <div class="text-gray-600">Correct Answers</div>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <div id="time-taken" class="text-3xl font-bold text-purple-600">0m</div>
+                                <div class="text-gray-600">Time Taken</div>
+                            </div>
+                        </div>
+                        <button onclick="showSection('home')" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-home mr-2"></i>Back to Home
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics-section" class="section hidden">
+            <h2 class="text-3xl font-bold mb-6">Performance Analytics</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold mb-4">Topic-wise Scores</h3>
+                    <canvas id="topic-scores-chart"></canvas>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold mb-4">Accuracy Rate</h3>
+                    <canvas id="accuracy-chart"></canvas>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold mb-4">Study Time Distribution</h3>
+                    <canvas id="time-chart"></canvas>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold mb-4">Progress Over Time</h3>
+                    <canvas id="progress-chart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress Section -->
+        <section id="progress-section" class="section hidden">
+            <h2 class="text-3xl font-bold mb-6">Learning Progress</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold mb-4">Topic Progress</h3>
+                        <div id="progress-list" class="space-y-4">
+                            <!-- Progress items will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                        <h3 class="text-xl font-bold mb-4">Overall Progress</h3>
+                        <div class="flex justify-center mb-4">
+                            <div class="relative w-32 h-32">
+                                <svg class="w-full h-full progress-ring">
+                                    <circle cx="64" cy="64" r="56" stroke="#e5e7eb" stroke-width="8" fill="none"></circle>
+                                    <circle id="overall-progress-circle" cx="64" cy="64" r="56" stroke="#3b82f6" 
+                                            stroke-width="8" fill="none" stroke-dasharray="352" stroke-dashoffset="352"></circle>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div id="overall-progress-text" class="text-2xl font-bold text-gray-800">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Topics Completed:</span>
+                                <span id="topics-completed-count" class="font-semibold">0/12</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Total Sessions:</span>
+                                <span id="total-sessions-count" class="font-semibold">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold mb-4">Recent Activity</h3>
+                        <div id="recent-activity" class="space-y-3">
+                            <!-- Recent activity items will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Concepts Section -->
+        <section id="concepts-section" class="section hidden">
+            <h2 class="text-3xl font-bold mb-6">Concept to Code Mapping</h2>
+            <div id="concepts-container" class="space-y-6">
+                <!-- Concept cards will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Configuration
+const SUPABASE_URL = 'https://nsnacwwcrszpjmanskti.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zbmFjd3djcnN6cGptYW5za3RpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5MTg2MTIsImV4cCI6MjA2ODQ5NDYxMn0.W01JADzAuGFvcAHAN6LPRIxc75J7A9Q76HIxvxkJDn4';
+
+let supabase;
+
+// Global variables
+let currentSession = null;
+let sessionTimer = null;
+let currentQuestionIndex = 0;
+let sessionQuestions = [];
+let userAnswers = [];
+let sessionStartTime = null;
+let navigationHistory = ['home']; // Track navigation history
+let currentPage = 'home';
+
+// Initialize Supabase client
+function initializeSupabase() {
+    try {
+        console.log("Initializing Supabase client...");
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        return true;
+    } catch (error) {
+        console.error('Error initializing Supabase:', error);
+        return false;
+    }
+}
+
+// Browser back button handling
+function setupBackButtonHandling() {
+    // Add initial state
+    history.replaceState({ page: 'home' }, '', '');
+    
+    window.addEventListener('popstate', function(event) {
+        if (event.state && event.state.page) {
+            showSection(event.state.page, false); // false = don't push to history
+        } else {
+            // If no state, go to home
+            showSection('home', false);
+        }
+    });
+}
+
+async function loadAnalytics() {
+    const userStats = getUserStats();
+    const sessionHistory = getSessionHistory();
+
+    // Topic-wise scores chart
+    const topicScoresCtx = document.getElementById('topic-scores-chart').getContext('2d');
+    new Chart(topicScoresCtx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(userStats.topicScores),
+            datasets: [{
+                label: 'Average Score (%)',
+                data: Object.values(userStats.topicScores),
+                backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                borderColor: 'rgba(59, 130, 246, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // Accuracy rate chart
+    const accuracyCtx = document.getElementById('accuracy-chart').getContext('2d');
+    const totalQuestions = sessionHistory.reduce((acc, session) => acc + session.totalQuestions, 0);
+    const correctAnswers = sessionHistory.reduce((acc, session) => acc + session.correctAnswers, 0);
+    const incorrectAnswers = totalQuestions - correctAnswers;
+
+    new Chart(accuracyCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Correct', 'Incorrect'],
+            datasets: [{
+                data: [correctAnswers, incorrectAnswers],
+                backgroundColor: ['rgba(34, 197, 94, 0.5)', 'rgba(239, 68, 68, 0.5)'],
+                borderColor: ['rgba(34, 197, 94, 1)', 'rgba(239, 68, 68, 1)'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+    // Study time distribution
+    const timeCtx = document.getElementById('time-chart').getContext('2d');
+    const topicTimeData = {};
+    sessionHistory.forEach(session => {
+        if (!topicTimeData[session.topicName]) {
+            topicTimeData[session.topicName] = 0;
+        }
+        topicTimeData[session.topicName] += session.duration;
+    });
+
+    new Chart(timeCtx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(topicTimeData),
+            datasets: [{
+                data: Object.values(topicTimeData),
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.5)', 'rgba(16, 185, 129, 0.5)', 'rgba(245, 158, 11, 0.5)',
+                    'rgba(139, 92, 246, 0.5)', 'rgba(236, 72, 153, 0.5)', 'rgba(239, 68, 68, 0.5)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+    // Progress over time
+    const progressCtx = document.getElementById('progress-chart').getContext('2d');
+    const last7Sessions = sessionHistory.slice(-7);
+    
+    new Chart(progressCtx, {
+        type: 'line',
+        data: {
+            labels: last7Sessions.map((_, index) => `Session ${index + 1}`),
+            datasets: [{
+                label: 'Score (%)',
+                data: last7Sessions.map(session => session.score),
+                borderColor: 'rgba(59, 130, 246, 1)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+}
+
+async function loadProgress() {
+    try {
+        const { data: topics, error } = await supabase
+            .from('syllabus')
+            .select('*')
+            .order('topic_order');
+
+        if (error) throw error;
+
+        const userStats = getUserStats();
+        const progressList = document.getElementById('progress-list');
+        progressList.innerHTML = '';
+
+        topics.forEach(topic => {
+            const topicProgress = getTopicProgress(topic.id);
+            const progressItem = document.createElement('div');
+            progressItem.className = 'border border-gray-200 rounded-lg p-4';
+            
+            progressItem.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="font-semibold text-gray-800">${topic.topic_name}</h4>
+                    <span class="text-sm ${topicProgress.percentage >= 70 ? 'text-green-600' : 'text-gray-500'}">${topicProgress.percentage}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                    <div class="h-2 rounded-full ${topicProgress.percentage >= 70 ? 'bg-green-500' : 'bg-blue-500'}" 
+                         style="width: ${topicProgress.percentage}%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500">
+                    <span>Best: ${topicProgress.bestScore}%</span>
+                    <span>Sessions: ${topicProgress.sessions}</span>
+                    <span>Avg: ${topicProgress.avgScore}%</span>
+                </div>
+            `;
+            
+            progressList.appendChild(progressItem);
+        });
+
+        // Update overall progress
+        const overallProgress = Math.round((userStats.completedTopics.length / topics.length) * 100);
+        document.getElementById('overall-progress-text').textContent = `${overallProgress}%`;
+        document.getElementById('topics-completed-count').textContent = `${userStats.completedTopics.length}/${topics.length}`;
+        document.getElementById('total-sessions-count').textContent = getSessionHistory().length;
+
+        // Update progress circle
+        const circle = document.getElementById('overall-progress-circle');
+        const radius = 56;
+        const circumference = 2 * Math.PI * radius;
+        const strokeDashoffset = circumference - (overallProgress / 100) * circumference;
+        circle.style.strokeDashoffset = strokeDashoffset;
+
+        // Load recent activity
+        const recentActivity = document.getElementById('recent-activity');
+        const sessionHistory = getSessionHistory().slice(-5);
+        recentActivity.innerHTML = '';
+
+        sessionHistory.forEach(session => {
+            const activityItem = document.createElement('div');
+            activityItem.className = 'border-l-4 border-blue-500 pl-3';
+            activityItem.innerHTML = `
+                <div class="font-semibold text-sm">${session.topicName}</div>
+                <div class="text-xs text-gray-500">Score: ${session.score}% • ${new Date(session.date).toLocaleDateString()}</div>
+            `;
+            recentActivity.appendChild(activityItem);
+        });
+
+    } catch (error) {
+        console.error('Error loading progress:', error);
+    }
+}
+
+async function loadConcepts() {
+    try {
+        const { data: concepts, error } = await supabase
+            .from('concept_code_map')
+            .select(`
+                *,
+                syllabus (topic_name)
+            `)
+            .order('topic_id');
+
+        if (error) throw error;
+
+        const conceptsContainer = document.getElementById('concepts-container');
+        conceptsContainer.innerHTML = '';
+
+        concepts.forEach(concept => {
+            const conceptCard = document.createElement('div');
+            conceptCard.className = 'bg-white rounded-lg shadow-md p-6';
+            
+            conceptCard.innerHTML = `
+                <div class="mb-4">
+                    <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">${concept.syllabus.topic_name}</span>
+                    <h3 class="text-xl font-bold mt-2">${concept.concept_name}</h3>
+                </div>
+                <div class="mb-4">
+                    <h4 class="font-semibold text-gray-700 mb-2">Code Example:</h4>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code>${concept.code_example}</code></pre>
+                </div>
+                <div class="mb-4">
+                    <h4 class="font-semibold text-gray-700 mb-2">Explanation:</h4>
+                    <p class="text-gray-600">${concept.explanation}</p>
+                </div>
+                ${concept.real_world_usage ? `
+                <div>
+                    <h4 class="font-semibold text-gray-700 mb-2">Real-world Usage:</h4>
+                    <p class="text-gray-600">${concept.real_world_usage}</p>
+                </div>
+                ` : ''}
+            `;
+            
+            conceptsContainer.appendChild(conceptCard);
+        });
+
+    } catch (error) {
+        console.error('Error loading concepts:', error);
+    }
+}
+
+// Session management functions
+function startTopicSession(topicId, topicName) {
+    // Reset session states when starting from home
+    resetSessionStates();
+    
+    document.getElementById('topic-select').value = topicId;
+    showSection('learn');
+}
+
+function resetSessionStates() {
+    // Reset all session related states
+    currentSession = null;
+    sessionTimer = null;
+    currentQuestionIndex = 0;
+    sessionQuestions = [];
+    userAnswers = [];
+    sessionStartTime = null;
+    
+    // Show session setup and hide other sections
+    document.getElementById('session-setup').classList.remove('hidden');
+    document.getElementById('mcq-session').classList.add('hidden');
+    document.getElementById('code-mcq-section').classList.add('hidden');
+    document.getElementById('results-section').classList.add('hidden');
+}
+
+async function startSession() {
+    const topicId = document.getElementById('topic-select').value;
+    const duration = parseInt(document.getElementById('duration-select').value);
+
+    if (!topicId) {
+        alert('Please select a topic first!');
+        return;
+    }
+
+    try {
+        // Fetch MCQs for the selected topic
+        const { data: mcqs, error } = await supabase
+            .from('mcqs')
+            .select('*')
+            .eq('topic_id', topicId)
+            .limit(10);
+
+        if (error) throw error;
+
+        if (mcqs.length === 0) {
+            alert('No questions available for this topic yet!');
+            return;
+        }
+
+        // Shuffle questions and initialize session
+        sessionQuestions = shuffleArray([...mcqs]);
+        currentQuestionIndex = 0;
+        userAnswers = [];
+        sessionStartTime = Date.now();
+
+        // Get topic name
+        const { data: topic } = await supabase
+            .from('syllabus')
+            .select('topic_name')
+            .eq('id', topicId)
+            .single();
+
+        currentSession = {
+            topicId: topicId,
+            topicName: topic.topic_name,
+            duration: duration,
+            startTime: sessionStartTime,
+            questions: sessionQuestions
+        };
+
+        // Hide setup and show session
+        document.getElementById('session-setup').classList.add('hidden');
+        document.getElementById('mcq-session').classList.remove('hidden');
+
+        // Start timer
+        startSessionTimer(duration * 60);
+
+        // Load first question
+        loadQuestion();
+
+    } catch (error) {
+        console.error('Error starting session:', error);
+        alert('Error starting session. Please try again.');
+    }
+}
+
+function startSessionTimer(seconds) {
+    let remainingTime = seconds;
+    const timerDisplay = document.getElementById('time-remaining');
+    const timerCircle = document.getElementById('timer-circle');
+    const circumference = 2 * Math.PI * 28;
+
+    sessionTimer = setInterval(() => {
+        remainingTime--;
+        
+        const minutes = Math.floor(remainingTime / 60);
+        const secs = remainingTime % 60;
+        timerDisplay.textContent = `${minutes}:${secs.toString().padStart(2, '0')}`;
+
+        // Update circular progress
+        const progress = remainingTime / seconds;
+        const strokeDashoffset = circumference * (1 - progress);
+        timerCircle.style.strokeDashoffset = strokeDashoffset;
+
+        if (remainingTime <= 0) {
+            clearInterval(sessionTimer);
+            endSession();
+        }
+    }, 1000);
+}
+
+function loadQuestion() {
+    const question = sessionQuestions[currentQuestionIndex];
+    if (!question) return;
+
+    document.getElementById('question-text').textContent = question.question;
+    document.getElementById('question-counter').textContent = `Question ${currentQuestionIndex + 1} of ${sessionQuestions.length}`;
+
+    const optionsContainer = document.getElementById('options-container');
+    optionsContainer.innerHTML = '';
+
+    const options = ['A', 'B', 'C', 'D'];
+    options.forEach(option => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'option-button bg-gray-50 hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-lg p-3 cursor-pointer transition-colors';
+        optionDiv.onclick = () => selectOption(option, optionDiv);
+        
+        optionDiv.innerHTML = `
+            <div class="flex items-center">
+                <div class="w-6 h-6 rounded-full border-2 border-gray-300 mr-3 flex items-center justify-center">
+                    <span class="text-sm font-bold">${option}</span>
+                </div>
+                <span>${question[`option_${option.toLowerCase()}`]}</span>
+            </div>
+            <div class="result-indicator hidden mt-2 text-sm font-medium"></div>
+        `;
+        
+        optionsContainer.appendChild(optionDiv);
+    });
+
+    // Update navigation buttons
+    document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+    document.getElementById('next-btn').textContent = 
+        currentQuestionIndex === sessionQuestions.length - 1 ? 'Finish' : 'Next';
+}
+
+function selectOption(option, optionElement) {
+    const question = sessionQuestions[currentQuestionIndex];
+    const correctOption = question.correct_option;
+    
+    // Remove previous selection and results
+    document.querySelectorAll('.option-button').forEach(btn => {
+        btn.classList.remove('bg-blue-100', 'border-blue-500', 'bg-green-100', 'border-green-500', 'bg-red-100', 'border-red-500');
+        btn.classList.add('bg-gray-50', 'border-gray-200');
+        const indicator = btn.querySelector('.result-indicator');
+        if (indicator) {
+            indicator.classList.add('hidden');
+        }
+    });
+
+    // Store answer
+    userAnswers[currentQuestionIndex] = option;
+
+    // Show results immediately
+    document.querySelectorAll('.option-button').forEach((btn, index) => {
+        const optionLetter = ['A', 'B', 'C', 'D'][index];
+        const indicator = btn.querySelector('.result-indicator');
+        
+        if (optionLetter === correctOption) {
+            // Correct answer - always show in green
+            btn.classList.remove('bg-gray-50', 'border-gray-200');
+            btn.classList.add('bg-green-100', 'border-green-500');
+            indicator.textContent = '✓ Correct Answer';
+            indicator.className = 'result-indicator mt-2 text-sm font-medium text-green-700';
+        } else if (optionLetter === option) {
+            // Selected wrong answer - show in red
+            btn.classList.remove('bg-gray-50', 'border-gray-200');
+            btn.classList.add('bg-red-100', 'border-red-500');
+            indicator.textContent = '✗ Incorrect';
+            indicator.className = 'result-indicator mt-2 text-sm font-medium text-red-700';
+        }
+    });
+
+    // Show explanation if available
+    if (question.explanation) {
+        // Find or create explanation div
+        let explanationDiv = document.getElementById('question-explanation');
+        if (!explanationDiv) {
+            explanationDiv = document.createElement('div');
+            explanationDiv.id = 'question-explanation';
+            explanationDiv.className = 'mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded';
+            document.getElementById('options-container').parentNode.appendChild(explanationDiv);
+        }
+        
+        explanationDiv.innerHTML = `
+            <h4 class="font-semibold text-blue-800 mb-2">Explanation:</h4>
+            <p class="text-blue-700">${question.explanation}</p>
+        `;
+        explanationDiv.classList.remove('hidden');
+    }
+
+    // Update score display
+    const correctCount = userAnswers.filter((answer, index) => 
+        answer === sessionQuestions[index]?.correct_option).length;
+    document.getElementById('score-display').textContent = `Score: ${correctCount}`;
+}
+
+function previousQuestion() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        loadQuestion();
+        
+        // Restore previous answer if exists
+        const previousAnswer = userAnswers[currentQuestionIndex];
+        if (previousAnswer) {
+            const optionButtons = document.querySelectorAll('.option-button');
+            const optionIndex = ['A', 'B', 'C', 'D'].indexOf(previousAnswer);
+            if (optionButtons[optionIndex]) {
+                selectOption(previousAnswer, optionButtons[optionIndex]);
+            }
+        }
+    }
+}
+
+function nextQuestion() {
+    // Hide explanation when moving to next question
+    const explanationDiv = document.getElementById('question-explanation');
+    if (explanationDiv) {
+        explanationDiv.classList.add('hidden');
+    }
+
+    if (currentQuestionIndex < sessionQuestions.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion();
+        
+        // Restore previous answer if exists
+        const previousAnswer = userAnswers[currentQuestionIndex];
+        if (previousAnswer) {
+            const optionButtons = document.querySelectorAll('.option-button');
+            const optionIndex = ['A', 'B', 'C', 'D'].indexOf(previousAnswer);
+            if (optionButtons[optionIndex]) {
+                selectOption(previousAnswer, optionButtons[optionIndex]);
+            }
+        }
+    } else {
+        endSession();
+    }
+}
+
+async function endSession() {
+    clearInterval(sessionTimer);
+
+    // Calculate results
+    const correctAnswers = userAnswers.filter((answer, index) => 
+        answer === sessionQuestions[index]?.correct_option).length;
+    const totalQuestions = sessionQuestions.length;
+    const score = Math.round((correctAnswers / totalQuestions) * 100);
+    const timeTaken = Math.round((Date.now() - sessionStartTime) / 1000);
+
+    // Save session to localStorage
+    saveSession({
+        topicId: currentSession.topicId,
+        topicName: currentSession.topicName,
+        score: score,
+        correctAnswers: correctAnswers,
+        totalQuestions: totalQuestions,
+        duration: timeTaken,
+        date: new Date().toISOString(),
+        answers: userAnswers,
+        questions: sessionQuestions // Store questions for review
+    });
+
+    // Show code MCQs
+    await loadCodeMCQs();
+}
+
+async function loadCodeMCQs() {
+    try {
+        const { data: codeMcqs, error } = await supabase
+            .from('code_mcqs')
+            .select('*')
+            .eq('topic_id', currentSession.topicId)
+            .limit(5);
+
+        if (error) throw error;
+
+        // Hide regular MCQ session
+        document.getElementById('mcq-session').classList.add('hidden');
+
+        if (codeMcqs.length > 0) {
+            // Show code MCQ section
+            document.getElementById('code-mcq-section').classList.remove('hidden');
+            loadCodeQuestions(codeMcqs);
+        } else {
+            // Skip to results if no code MCQs
+            showResults();
+        }
+
+    } catch (error) {
+        console.error('Error loading code MCQs:', error);
+        showResults();
+    }
+}
+
+function loadCodeQuestions(codeMcqs) {
+    let currentCodeIndex = 0;
+    let codeAnswers = [];
+
+    function loadCodeQuestion() {
+        const question = codeMcqs[currentCodeIndex];
+        const codeQuestionCard = document.getElementById('code-question-card');
+        
+        codeQuestionCard.innerHTML = `
+            <div class="mb-4">
+                <span class="text-sm text-gray-500">Code Question ${currentCodeIndex + 1} of ${codeMcqs.length}</span>
+                <h4 class="text-lg font-semibold mt-2">${question.question}</h4>
+            </div>
+            <div class="mb-4">
+                <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code>${question.code_snippet}</code></pre>
+            </div>
+            <div class="space-y-3 mb-4" id="code-options">
+                ${['A', 'B', 'C', 'D'].map(option => `
+                    <div class="code-option bg-gray-50 hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-lg p-3 cursor-pointer transition-colors"
+                         onclick="selectCodeOption('${option}', this, ${currentCodeIndex})">
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 rounded-full border-2 border-gray-300 mr-3 flex items-center justify-center">
+                                <span class="text-sm font-bold">${option}</span>
+                            </div>
+                            <span>${question[`option_${option.toLowerCase()}`]}</span>
+                        </div>
+                        <div class="result-indicator hidden mt-2 text-sm font-medium"></div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="flex justify-between">
+                <button onclick="previousCodeQuestion()" ${currentCodeIndex === 0 ? 'disabled' : ''} 
+                        class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 disabled:opacity-50">
+                    <i class="fas fa-chevron-left mr-2"></i>Previous
+                </button>
+                <button onclick="nextCodeQuestion()" 
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    ${currentCodeIndex === codeMcqs.length - 1 ? 'Finish' : 'Next'}<i class="fas fa-chevron-right ml-2"></i>
+                </button>
+            </div>
+        `;
+    }
+
+    window.selectCodeOption = function(option, element, questionIndex) {
+        const question = codeMcqs[questionIndex];
+        const correctOption = question.correct_option;
+        
+        // Remove previous selection and results
+        document.querySelectorAll('.code-option').forEach(btn => {
+            btn.classList.remove('bg-blue-100', 'border-blue-500', 'bg-green-100', 'border-green-500', 'bg-red-100', 'border-red-500');
+            btn.classList.add('bg-gray-50', 'border-gray-200');
+            const indicator = btn.querySelector('.result-indicator');
+            if (indicator) {
+                indicator.classList.add('hidden');
+            }
+        });
+
+        // Store answer
+        codeAnswers[questionIndex] = option;
+
+        // Show results immediately
+        document.querySelectorAll('.code-option').forEach((btn, index) => {
+            const optionLetter = ['A', 'B', 'C', 'D'][index];
+            const indicator = btn.querySelector('.result-indicator');
+            
+            if (optionLetter === correctOption) {
+                // Correct answer - always show in green
+                btn.classList.remove('bg-gray-50', 'border-gray-200');
+                btn.classList.add('bg-green-100', 'border-green-500');
+                indicator.textContent = '✓ Correct Answer';
+                indicator.className = 'result-indicator mt-2 text-sm font-medium text-green-700';
+            } else if (optionLetter === option) {
+                // Selected wrong answer - show in red
+                btn.classList.remove('bg-gray-50', 'border-gray-200');
+                btn.classList.add('bg-red-100', 'border-red-500');
+                indicator.textContent = '✗ Incorrect';
+                indicator.className = 'result-indicator mt-2 text-sm font-medium text-red-700';
+            }
+        });
+
+        // Show explanation if available
+        if (question.explanation) {
+            let explanationDiv = document.getElementById('code-question-explanation');
+            if (!explanationDiv) {
+                explanationDiv = document.createElement('div');
+                explanationDiv.id = 'code-question-explanation';
+                explanationDiv.className = 'mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded';
+                document.getElementById('code-options').parentNode.appendChild(explanationDiv);
+            }
+            
+            explanationDiv.innerHTML = `
+                <h4 class="font-semibold text-blue-800 mb-2">Explanation:</h4>
+                <p class="text-blue-700">${question.explanation}</p>
+            `;
+            explanationDiv.classList.remove('hidden');
+        }
+    };
+
+    window.previousCodeQuestion = function() {
+        if (currentCodeIndex > 0) {
+            currentCodeIndex--;
+            loadCodeQuestion();
+        }
+    };
+
+    window.nextCodeQuestion = function() {
+        // Hide explanation when moving to next question
+        const explanationDiv = document.getElementById('code-question-explanation');
+        if (explanationDiv) {
+            explanationDiv.classList.add('hidden');
+        }
+
+        if (currentCodeIndex < codeMcqs.length - 1) {
+            currentCodeIndex++;
+            loadCodeQuestion();
+        } else {
+            // Calculate code MCQ results
+            const codeCorrect = codeAnswers.filter((answer, index) => 
+                answer === codeMcqs[index]?.correct_option).length;
+            
+            // Save code results
+            const sessionHistory = getSessionHistory();
+            if (sessionHistory.length > 0) {
+                sessionHistory[sessionHistory.length - 1].codeMcqScore = Math.round((codeCorrect / codeMcqs.length) * 100);
+                sessionHistory[sessionHistory.length - 1].codeMcqCorrect = codeCorrect;
+                sessionHistory[sessionHistory.length - 1].codeMcqTotal = codeMcqs.length;
+                sessionHistory[sessionHistory.length - 1].codeAnswers = codeAnswers;
+                sessionHistory[sessionHistory.length - 1].codeQuestions = codeMcqs;
+                localStorage.setItem('sessionHistory', JSON.stringify(sessionHistory));
+            }
+
+            showResults();
+        }
+    };
+
+    loadCodeQuestion();
+}
+
+function showResults() {
+    // Hide code MCQ section
+    document.getElementById('code-mcq-section').classList.add('hidden');
+    
+    // Show results
+    document.getElementById('results-section').classList.remove('hidden');
+
+    // Get latest session results
+    const sessionHistory = getSessionHistory();
+    const latestSession = sessionHistory[sessionHistory.length - 1];
+
+    // Update result displays
+    document.getElementById('final-score').textContent = `${latestSession.score}%`;
+    document.getElementById('correct-answers').textContent = `${latestSession.correctAnswers}/${latestSession.totalQuestions}`;
+    document.getElementById('time-taken').textContent = `${Math.floor(latestSession.duration / 60)}m ${latestSession.duration % 60}s`;
+
+    // Show detailed review
+    showDetailedReview(latestSession);
+}
+
+function showDetailedReview(session) {
+    const reviewContainer = document.createElement('div');
+    reviewContainer.id = 'detailed-review';
+    reviewContainer.className = 'mt-6 space-y-4';
+    
+    let reviewHTML = '<h3 class="text-lg font-bold text-gray-800 mb-4">Question Review</h3>';
+    
+    // Regular MCQs review
+    if (session.questions && session.answers) {
+        reviewHTML += '<h4 class="font-semibold text-gray-700 mb-3">Regular Questions</h4>';
+        session.questions.forEach((question, index) => {
+            const userAnswer = session.answers[index];
+            const correctAnswer = question.correct_option;
+            const isCorrect = userAnswer === correctAnswer;
+            
+            reviewHTML += `
+                <div class="border ${isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'} rounded-lg p-4">
+                    <div class="flex items-center mb-2">
+                        <span class="text-sm font-medium ${isCorrect ? 'text-green-700' : 'text-red-700'}">
+                            Question ${index + 1}
+                        </span>
+                        <span class="ml-2 text-xs px-2 py-1 rounded ${isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            ${isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                        </span>
+                    </div>
+                    <p class="text-gray-800 font-medium mb-3">${question.question}</p>
+                    <div class="space-y-2">
+                        ${['A', 'B', 'C', 'D'].map(option => {
+                            const optionText = question[`option_${option.toLowerCase()}`];
+                            let optionClass = 'text-gray-600';
+                            let icon = '';
+                            
+                            if (option === correctAnswer) {
+                                optionClass = 'text-green-700 font-semibold';
+                                icon = '✓ ';
+                            } else if (option === userAnswer && !isCorrect) {
+                                optionClass = 'text-red-700 font-semibold';
+                                icon = '✗ ';
+                            }
+                            
+                            return `<div class="${optionClass}">${icon}${option}. ${optionText}</div>`;
+                        }).join('')}
+                    </div>
+                    ${question.explanation ? `
+                        <div class="mt-3 p-3 bg-blue-50 border-l-4 border-blue-400 rounded">
+                            <p class="text-sm text-blue-700"><strong>Explanation:</strong> ${question.explanation}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+    }
+    
+    // Code MCQs review
+    if (session.codeQuestions && session.codeAnswers) {
+        reviewHTML += '<h4 class="font-semibold text-gray-700 mb-3 mt-6">Code Questions</h4>';
+        session.codeQuestions.forEach((question, index) => {
+            const userAnswer = session.codeAnswers[index];
+            const correctAnswer = question.correct_option;
+            const isCorrect = userAnswer === correctAnswer;
+            
+            reviewHTML += `
+                <div class="border ${isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'} rounded-lg p-4">
+                    <div class="flex items-center mb-2">
+                        <span class="text-sm font-medium ${isCorrect ? 'text-green-700' : 'text-red-700'}">
+                            Code Question ${index + 1}
+                        </span>
+                        <span class="ml-2 text-xs px-2 py-1 rounded ${isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            ${isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                        </span>
+                    </div>
+                    <p class="text-gray-800 font-medium mb-3">${question.question}</p>
+                    <pre class="bg-gray-100 p-3 rounded-lg overflow-x-auto mb-3 text-sm"><code>${question.code_snippet}</code></pre>
+                    <div class="space-y-2">
+                        ${['A', 'B', 'C', 'D'].map(option => {
+                            const optionText = question[`option_${option.toLowerCase()}`];
+                            let optionClass = 'text-gray-600';
+                            let icon = '';
+                            
+                            if (option === correctAnswer) {
+                                optionClass = 'text-green-700 font-semibold';
+                                icon = '✓ ';
+                            } else if (option === userAnswer && !isCorrect) {
+                                optionClass = 'text-red-700 font-semibold';
+                                icon = '✗ ';
+                            }
+                            
+                            return `<div class="${optionClass}">${icon}${option}. ${optionText}</div>`;
+                        }).join('')}
+                    </div>
+                    ${question.explanation ? `
+                        <div class="mt-3 p-3 bg-blue-50 border-l-4 border-blue-400 rounded">
+                            <p class="text-sm text-blue-700"><strong>Explanation:</strong> ${question.explanation}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+    }
+    
+    reviewContainer.innerHTML = reviewHTML;
+    
+    // Remove existing review if present
+    const existingReview = document.getElementById('detailed-review');
+    if (existingReview) {
+        existingReview.remove();
+    }
+    
+    // Add to results section
+    document.getElementById('results-section').appendChild(reviewContainer);
+}
+
+// Enhanced navigation functions with back button handling
+function showSection(sectionName, addToHistory = true) {
+    // Hide all sections
+    const sections = ['home-section', 'learn-section', 'progress-section', 'analytics-section', 'concepts-section'];
+    sections.forEach(section => {
+        const element = document.getElementById(section);
+        if (element) {
+            element.classList.add('hidden');
+        }
+    });
+
+    // Show selected section
+    const targetSection = document.getElementById(`${sectionName}-section`);
+    if (targetSection) {
+        targetSection.classList.remove('hidden');
+    }
+
+    // Update navigation
+    updateNavigation(sectionName);
+    
+    // Handle browser history
+    if (addToHistory) {
+        // Add to navigation history
+        if (navigationHistory[navigationHistory.length - 1] !== sectionName) {
+            navigationHistory.push(sectionName);
+        }
+        
+        // Update browser history
+        history.pushState({ page: sectionName, navHistory: [...navigationHistory] }, '', '');
+    }
+    
+    currentPage = sectionName;
+
+    // Reset session states when going to home or learn
+    if (sectionName === 'home' || sectionName === 'learn') {
+        resetSessionStates();
+    }
+
+    // Load section-specific content
+    // Load section-specific content
+switch (sectionName) {
+    case 'home':
+        // Clear navigation history when reaching home
+        navigationHistory = ['home'];
+        // Update browser history to reflect cleared navigation
+        history.replaceState({ page: 'home', navHistory: ['home'] }, '', '');
+        loadDashboard();
+        break;
+        case 'learn':
+            loadTopics();
+            break;
+        case 'progress':
+            loadProgress();
+            break;
+        case 'analytics':
+            loadAnalytics();
+            break;
+        case 'concepts':
+            loadConcepts();
+            break;
+    }
+}
+
+// Enhanced back button handling
+function setupBackButtonHandling() {
+    // Add initial state with navigation history
+    history.replaceState({ page: 'home', navHistory: ['home'] }, '', '');
+    
+    window.addEventListener('popstate', function(event) {
+        if (event.state) {
+            const { page, navHistory } = event.state;
+            
+            if (navHistory && navHistory.length > 0) {
+                navigationHistory = [...navHistory];
+            }
+            
+            if (page) {
+                showSection(page, false); // false = don't add to history
+            } else {
+                showSection('home', false);
+            }
+        } else {
+            // Handle browser back when no state exists
+            handleMobileBack();
+        }
+    });
+    
+    // Handle Android back button
+    document.addEventListener('backbutton', handleMobileBack, false);
+}
+
+function handleMobileBack() {
+    // If we're in a session (MCQ or results), go back to topic selection
+    if (!document.getElementById('session-setup').classList.contains('hidden') || 
+        !document.getElementById('mcq-session').classList.contains('hidden') ||
+        !document.getElementById('code-mcq-section').classList.contains('hidden') ||
+        !document.getElementById('results-section').classList.contains('hidden')) {
+        
+        resetSessionStates();
+        showSection('learn', false);
+        return;
+    }
+    
+    // Normal page navigation
+if (navigationHistory.length > 1) {
+    // Remove current page
+    navigationHistory.pop();
+    // Go to previous page
+    const previousPage = navigationHistory[navigationHistory.length - 1];
+    showSection(previousPage, false);
+} else {
+    // If no history or only home in history, exit app or do nothing
+    // For web: prevent default back behavior
+    // For mobile app: exit app
+    if (window.navigator && window.navigator.app) {
+        navigator.app.exitApp();
+    }
+}
+}
+
+// Enhanced topic loading with proper reset
+async function loadTopics() {
+    try {
+        const { data: topics, error } = await supabase
+            .from('syllabus')
+            .select('*')
+            .order('topic_order');
+
+        if (error) throw error;
+
+        const topicSelect = document.getElementById('topic-select');
+        topicSelect.innerHTML = '<option value="">Choose a topic to learn</option>';
+
+        topics.forEach(topic => {
+            const option = document.createElement('option');
+            option.value = topic.id;
+            option.textContent = topic.topic_name;
+            topicSelect.appendChild(option);
+        });
+
+    } catch (error) {
+        console.error('Error loading topics:', error);
+    }
+}
+
+// Enhanced session reset function
+function resetSessionStates() {
+    // Reset all session related states
+    currentSession = null;
+    sessionTimer = null;
+    currentQuestionIndex = 0;
+    sessionQuestions = [];
+    userAnswers = [];
+    sessionStartTime = null;
+    
+    // Clear timer display
+    const timerDisplay = document.getElementById('time-remaining');
+    if (timerDisplay) {
+        timerDisplay.textContent = '0:00';
+    }
+    
+    // Reset timer circle
+    const timerCircle = document.getElementById('timer-circle');
+    if (timerCircle) {
+        timerCircle.style.strokeDashoffset = 0;
+    }
+    
+    // Reset topic selection
+    const topicSelect = document.getElementById('topic-select');
+    if (topicSelect) {
+        topicSelect.value = '';
+    }
+    
+    // Reset duration selection
+    const durationSelect = document.getElementById('duration-select');
+    if (durationSelect) {
+        durationSelect.value = '15';
+    }
+    
+    // Show session setup and hide other sections
+    const sessionSetup = document.getElementById('session-setup');
+    const mcqSession = document.getElementById('mcq-session');
+    const codeMcqSection = document.getElementById('code-mcq-section');
+    const resultsSection = document.getElementById('results-section');
+    
+    if (sessionSetup) sessionSetup.classList.remove('hidden');
+    if (mcqSession) mcqSession.classList.add('hidden');
+    if (codeMcqSection) codeMcqSection.classList.add('hidden');
+    if (resultsSection) resultsSection.classList.add('hidden');
+    
+    // Clear any existing question content
+    const questionText = document.getElementById('question-text');
+    if (questionText) {
+        questionText.textContent = '';
+    }
+    
+    const optionsContainer = document.getElementById('options-container');
+    if (optionsContainer) {
+        optionsContainer.innerHTML = '';
+    }
+    
+    // Remove any explanation divs
+    const explanationDiv = document.getElementById('question-explanation');
+    if (explanationDiv) {
+        explanationDiv.remove();
+    }
+    
+    const codeExplanationDiv = document.getElementById('code-question-explanation');
+    if (codeExplanationDiv) {
+        codeExplanationDiv.remove();
+    }
+    
+    // Remove detailed review
+    const detailedReview = document.getElementById('detailed-review');
+    if (detailedReview) {
+        detailedReview.remove();
+    }
+}
+
+// Enhanced option selection with immediate feedback
+function selectOption(option, optionElement) {
+    const question = sessionQuestions[currentQuestionIndex];
+    const correctOption = question.correct_option;
+    
+    // Remove previous selection and results
+    document.querySelectorAll('.option-button').forEach(btn => {
+        btn.classList.remove('bg-blue-100', 'border-blue-500', 'bg-green-100', 'border-green-500', 'bg-red-100', 'border-red-500');
+        btn.classList.add('bg-gray-50', 'border-gray-200');
+        const indicator = btn.querySelector('.result-indicator');
+        if (indicator) {
+            indicator.classList.add('hidden');
+        }
+    });
+
+    // Store answer
+    userAnswers[currentQuestionIndex] = option;
+
+    // Show results immediately with color coding and small text
+    document.querySelectorAll('.option-button').forEach((btn, index) => {
+        const optionLetter = ['A', 'B', 'C', 'D'][index];
+        const indicator = btn.querySelector('.result-indicator');
+        
+        if (optionLetter === correctOption) {
+            // Correct answer - always show in green
+            btn.classList.remove('bg-gray-50', 'border-gray-200');
+            btn.classList.add('bg-green-100', 'border-green-500');
+            indicator.textContent = '✓ Correct Answer';
+            indicator.className = 'result-indicator mt-2 text-xs font-medium text-green-700';
+        } else if (optionLetter === option) {
+            // Selected wrong answer - show in red
+            btn.classList.remove('bg-gray-50', 'border-gray-200');
+            btn.classList.add('bg-red-100', 'border-red-500');
+            indicator.textContent = '✗ Incorrect';
+            indicator.className = 'result-indicator mt-2 text-xs font-medium text-red-700';
+        }
+    });
+
+    // Show explanation if available
+    if (question.explanation) {
+        // Find or create explanation div
+        let explanationDiv = document.getElementById('question-explanation');
+        if (!explanationDiv) {
+            explanationDiv = document.createElement('div');
+            explanationDiv.id = 'question-explanation';
+            explanationDiv.className = 'mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded';
+            document.getElementById('options-container').parentNode.appendChild(explanationDiv);
+        }
+        
+        explanationDiv.innerHTML = `
+            <h4 class="font-semibold text-blue-800 mb-2">Explanation:</h4>
+            <p class="text-blue-700 text-sm">${question.explanation}</p>
+        `;
+        explanationDiv.classList.remove('hidden');
+    }
+
+    // Update score display
+    const correctCount = userAnswers.filter((answer, index) => 
+        answer === sessionQuestions[index]?.correct_option).length;
+    document.getElementById('score-display').textContent = `Score: ${correctCount}/${userAnswers.filter(a => a).length}`;
+}
+
+// Enhanced navigation functions
+function updateNavigation(currentSection) {
+    const navButtons = document.querySelectorAll('.nav-btn');
+    navButtons.forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white');
+        btn.classList.add('text-gray-600');
+    });
+
+    const activeBtn = document.querySelector(`[onclick*="${currentSection}"]`);
+    if (activeBtn) {
+        activeBtn.classList.remove('text-gray-600');
+        activeBtn.classList.add('bg-blue-600', 'text-white');
+    }
+}
+
+// Utility functions for local storage
+function saveSession(sessionData) {
+    const sessionHistory = getSessionHistory();
+    sessionHistory.push(sessionData);
+    localStorage.setItem('sessionHistory', JSON.stringify(sessionHistory));
+}
+
+function getSessionHistory() {
+    const history = localStorage.getItem('sessionHistory');
+    return history ? JSON.parse(history) : [];
+}
+
+function getUserStats() {
+    const sessions = getSessionHistory();
+    const stats = {
+        totalSessions: sessions.length,
+        totalScore: 0,
+        topicScores: {},
+        completedTopics: new Set()
+    };
+
+    sessions.forEach(session => {
+        stats.totalScore += session.score;
+        
+        if (!stats.topicScores[session.topicName]) {
+            stats.topicScores[session.topicName] = [];
+        }
+        stats.topicScores[session.topicName].push(session.score);
+        
+        if (session.score >= 70) {
+            stats.completedTopics.add(session.topicName);
+        }
+    });
+
+    // Calculate average scores for each topic
+    Object.keys(stats.topicScores).forEach(topic => {
+        const scores = stats.topicScores[topic];
+        stats.topicScores[topic] = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    });
+
+    stats.averageScore = sessions.length > 0 ? Math.round(stats.totalScore / sessions.length) : 0;
+    stats.completedTopics = Array.from(stats.completedTopics);
+
+    return stats;
+}
+
+function getTopicProgress(topicId) {
+    const sessions = getSessionHistory().filter(s => s.topicId == topicId);
+    
+    if (sessions.length === 0) {
+        return { percentage: 0, bestScore: 0, avgScore: 0, sessions: 0 };
+    }
+    
+    const scores = sessions.map(s => s.score);
+    const bestScore = Math.max(...scores);
+    const avgScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    
+    return {
+        percentage: bestScore,
+        bestScore: bestScore,
+        avgScore: avgScore,
+        sessions: sessions.length
+    };
+}
+
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+// Dashboard loading function
+async function loadDashboard() {
+    const userStats = getUserStats();
+    
+    // Update dashboard stats if elements exist
+    const totalSessionsEl = document.getElementById('total-sessions');
+    if (totalSessionsEl) {
+        totalSessionsEl.textContent = userStats.totalSessions;
+    }
+    
+    const avgScoreEl = document.getElementById('average-score');
+    if (avgScoreEl) {
+        avgScoreEl.textContent = `${userStats.averageScore}%`;
+    }
+    
+    const completedTopicsEl = document.getElementById('completed-topics');
+    if (completedTopicsEl) {
+        completedTopicsEl.textContent = userStats.completedTopics.length;
+    }
+}
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', function() {
+    if (initializeSupabase()) {
+        setupBackButtonHandling();
+        showSection('home');
+        console.log('Application initialized successfully');
+    } else {
+        console.error('Failed to initialize application');
+    }
+});
+    </script>
+</body>
+</html>
