@@ -154,19 +154,19 @@
         </div>
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden bg-blue-700 px-4 py-2">
-            <button onclick="showSection('home')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
-                <i class="fas fa-home mr-2"></i>Home
-            </button>
-            <button onclick="showSection('learn')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+            <button onclick="showSectionAndCloseMobile('home')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+    <i class="fas fa-home mr-2"></i>Home
+</button>
+            <button onclick="showSectionAndCloseMobile('learn')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
                 <i class="fas fa-graduation-cap mr-2"></i>Learn
             </button>
-            <button onclick="showSection('analytics')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+            <button onclick="showSectionAndCloseMobile('analytics')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
                 <i class="fas fa-chart-bar mr-2"></i>Analytics
             </button>
-            <button onclick="showSection('progress')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+            <button onclick="showSectionAndCloseMobile('progress')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
                 <i class="fas fa-trophy mr-2"></i>Progress
             </button>
-            <button onclick="showSection('concepts')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+            <button onclick="showSectionAndCloseMobile('concepts')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
                 <i class="fas fa-lightbulb mr-2"></i>Concepts
             </button>
         </div>
@@ -804,6 +804,24 @@ function loadQuestion() {
     document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
     document.getElementById('next-btn').textContent = 
         currentQuestionIndex === sessionQuestions.length - 1 ? 'Finish' : 'Next';
+}
+
+
+
+function toggleMobileMenu() {
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (mobileMenu.classList.contains('hidden')) {
+        mobileMenu.classList.remove('hidden');
+    } else {
+        mobileMenu.classList.add('hidden');
+    }
+}
+
+
+// Update the mobile menu buttons in your HTML to close menu after clicking
+function showSectionAndCloseMobile(section) {
+    showSection(section);
+    document.getElementById('mobile-menu').classList.add('hidden');
 }
 
 function selectOption(option, optionElement) {
