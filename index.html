@@ -9,6 +9,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3B82F6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CoderVerse">
+    
+    <!-- Icons for different devices -->
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .topic-card:hover { transform: translateY(-2px); }
@@ -127,6 +138,56 @@
   cursor: pointer;
 }
 
+
+.section { transition: opacity 0.3s ease-in-out; }
+        .nav-btn { transition: all 0.2s ease; }
+        .timer-ring { 
+            transform: rotate(-90deg); 
+            transition: stroke-dashoffset 0.1s linear;
+        }
+        .progress-ring { transform: rotate(-90deg); }
+        
+        /* Install button styles */
+        .install-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            animation: pulse 2s infinite;
+        }
+        
+        .install-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+            50% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.8); }
+            100% { box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+        }
+        
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+            max-width: 350px;
+            text-align: center;
+        }
+
+    
+
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -162,8 +223,8 @@
                     
                     <!-- Install Button for Desktop -->
                     <button id="install-button-desktop" 
-                            class="hidden md:block bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium"
-                            style="display: none;">
+                            class="install-button hidden"
+                            onclick="showInstallPrompt()">
                         <i class="fas fa-download mr-2"></i>Install App
                     </button>
                 </div>
@@ -172,8 +233,8 @@
                 <div class="md:hidden flex items-center space-x-3">
                     <!-- Install Button for Mobile -->
                     <button id="install-button-mobile" 
-                            class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-3 py-2 rounded-lg transition-all duration-200 text-xs"
-                            style="display: none;">
+                            class="install-button hidden text-xs px-3 py-2"
+                            onclick="showInstallPrompt()">
                         <i class="fas fa-download mr-1"></i>Install
                     </button>
                     
@@ -215,26 +276,49 @@
             <!-- Quick Stats -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div class="text-3xl font-bold text-blue-600" id="total-topics">0</div>
+                    <div class="text-3xl font-bold text-blue-600" id="total-topics">12</div>
                     <div class="text-gray-600">Topics Available</div>
                 </div>
                 <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div class="text-3xl font-bold text-green-600" id="completed-topics">0</div>
+                    <div class="text-3xl font-bold text-green-600" id="completed-topics">3</div>
                     <div class="text-gray-600">Completed</div>
                 </div>
                 <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div class="text-3xl font-bold text-purple-600" id="avg-score">0%</div>
+                    <div class="text-3xl font-bold text-purple-600" id="avg-score">85%</div>
                     <div class="text-gray-600">Average Score</div>
                 </div>
                 <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div class="text-3xl font-bold text-orange-600" id="total-time">0m</div>
+                    <div class="text-3xl font-bold text-orange-600" id="total-time">45m</div>
                     <div class="text-gray-600">Study Time</div>
                 </div>
             </div>
 
             <!-- Topics Grid -->
             <div id="topics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Topics will be loaded here -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <h3 class="text-xl font-semibold mb-2">Variables & Data Types</h3>
+                    <p class="text-gray-600 mb-4">Learn about different data types in C</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-green-600 font-semibold">Completed</span>
+                        <span class="text-sm text-gray-500">Score: 90%</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <h3 class="text-xl font-semibold mb-2">Control Structures</h3>
+                    <p class="text-gray-600 mb-4">If-else, loops, and switch statements</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-blue-600 font-semibold">In Progress</span>
+                        <span class="text-sm text-gray-500">Score: 75%</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <h3 class="text-xl font-semibold mb-2">Functions</h3>
+                    <p class="text-gray-600 mb-4">Function declarations and definitions</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 font-semibold">Not Started</span>
+                        <span class="text-sm text-gray-500">Score: --</span>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -249,6 +333,9 @@
                             <label class="block text-gray-700 font-semibold mb-2">Select Topic:</label>
                             <select id="topic-select" class="w-full p-3 border border-gray-300 rounded-lg">
                                 <option value="">Choose a topic...</option>
+                                <option value="variables">Variables & Data Types</option>
+                                <option value="control">Control Structures</option>
+                                <option value="functions">Functions</option>
                             </select>
                         </div>
                         <div>
@@ -264,80 +351,6 @@
                         <i class="fas fa-play mr-2"></i>Start Session
                     </button>
                 </div>
-
-                <!-- MCQ Session -->
-                <div id="mcq-session" class="hidden">
-                    <!-- Timer -->
-                    <div class="bg-white rounded-lg shadow-md p-4 mb-6 flex justify-between items-center">
-                        <div class="flex items-center">
-                            <svg class="w-16 h-16 mr-4">
-                                <circle cx="32" cy="32" r="28" stroke="#e5e7eb" stroke-width="4" fill="none"></circle>
-                                <circle id="timer-circle" cx="32" cy="32" r="28" stroke="#3b82f6" stroke-width="4" 
-                                        fill="none" class="timer-ring"></circle>
-                            </svg>
-                            <div>
-                                <div id="time-remaining" class="text-2xl font-bold text-gray-800">10:00</div>
-                                <div class="text-gray-600">Time Remaining</div>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div id="question-counter" class="text-lg font-semibold text-gray-800">Question 1 of 10</div>
-                            <div id="score-display" class="text-gray-600">Score: 0</div>
-                        </div>
-                    </div>
-
-                    <!-- Question Card -->
-                    <div id="question-card" class="bg-white rounded-lg shadow-md p-6 mb-6">
-                        <div id="question-text" class="text-xl font-semibold mb-4 text-gray-800"></div>
-                        <div id="options-container" class="space-y-3">
-                            <!-- Options will be loaded here -->
-                        </div>
-                    </div>
-
-                    <!-- Navigation -->
-                    <div class="flex justify-between">
-                        <button onclick="previousQuestion()" id="prev-btn" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 disabled:opacity-50" disabled>
-                            <i class="fas fa-chevron-left mr-2"></i>Previous
-                        </button>
-                        <button onclick="nextQuestion()" id="next-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                            Next<i class="fas fa-chevron-right ml-2"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Code MCQ Section -->
-                <div id="code-mcq-section" class="hidden">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-2xl font-bold mb-4">Code Analysis Questions</h3>
-                        <div id="code-question-card">
-                            <!-- Code questions will be loaded here -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Results Section -->
-                <div id="results-section" class="hidden">
-                    <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                        <h3 class="text-2xl font-bold mb-4">Session Complete!</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            <div class="bg-blue-50 p-4 rounded-lg">
-                                <div id="final-score" class="text-3xl font-bold text-blue-600">0%</div>
-                                <div class="text-gray-600">Final Score</div>
-                            </div>
-                            <div class="bg-green-50 p-4 rounded-lg">
-                                <div id="correct-answers" class="text-3xl font-bold text-green-600">0</div>
-                                <div class="text-gray-600">Correct Answers</div>
-                            </div>
-                            <div class="bg-purple-50 p-4 rounded-lg">
-                                <div id="time-taken" class="text-3xl font-bold text-purple-600">0m</div>
-                                <div class="text-gray-600">Time Taken</div>
-                            </div>
-                        </div>
-                        <button onclick="showSection('home')" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
-                            <i class="fas fa-home mr-2"></i>Back to Home
-                        </button>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -347,19 +360,11 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-xl font-bold mb-4">Topic-wise Scores</h3>
-                    <canvas id="topic-scores-chart"></canvas>
+                    <div class="text-center text-gray-500">Chart will be displayed here</div>
                 </div>
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-xl font-bold mb-4">Accuracy Rate</h3>
-                    <canvas id="accuracy-chart"></canvas>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-bold mb-4">Study Time Distribution</h3>
-                    <canvas id="time-chart"></canvas>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-bold mb-4">Progress Over Time</h3>
-                    <canvas id="progress-chart"></canvas>
+                    <div class="text-center text-gray-500">Chart will be displayed here</div>
                 </div>
             </div>
         </section>
@@ -367,48 +372,10 @@
         <!-- Progress Section -->
         <section id="progress-section" class="section hidden">
             <h2 class="text-3xl font-bold mb-6">Learning Progress</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-xl font-bold mb-4">Topic Progress</h3>
-                        <div id="progress-list" class="space-y-4">
-                            <!-- Progress items will be loaded here -->
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                        <h3 class="text-xl font-bold mb-4">Overall Progress</h3>
-                        <div class="flex justify-center mb-4">
-                            <div class="relative w-32 h-32">
-                                <svg class="w-full h-full progress-ring">
-                                    <circle cx="64" cy="64" r="56" stroke="#e5e7eb" stroke-width="8" fill="none"></circle>
-                                    <circle id="overall-progress-circle" cx="64" cy="64" r="56" stroke="#3b82f6" 
-                                            stroke-width="8" fill="none" stroke-dasharray="352" stroke-dashoffset="352"></circle>
-                                </svg>
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <div id="overall-progress-text" class="text-2xl font-bold text-gray-800">0%</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="space-y-2">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Topics Completed:</span>
-                                <span id="topics-completed-count" class="font-semibold">0/12</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Total Sessions:</span>
-                                <span id="total-sessions-count" class="font-semibold">0</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-xl font-bold mb-4">Recent Activity</h3>
-                        <div id="recent-activity" class="space-y-3">
-                            <!-- Recent activity items will be loaded here -->
-                        </div>
-                    </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold mb-4">Overall Progress: 25%</h3>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-blue-600 h-3 rounded-full" style="width: 25%"></div>
                 </div>
             </div>
         </section>
@@ -416,11 +383,25 @@
         <!-- Concepts Section -->
         <section id="concepts-section" class="section hidden">
             <h2 class="text-3xl font-bold mb-6">Concept to Code Mapping</h2>
-            <div id="concepts-container" class="space-y-6">
-                <!-- Concept cards will be loaded here -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold mb-4">Code concepts will be displayed here</h3>
             </div>
         </section>
     </main>
+
+    <!-- Install Prompt Modal -->
+    <div id="install-prompt" class="install-prompt hidden">
+        <h3 class="text-lg font-bold mb-2">Install CoderVerse</h3>
+        <p class="text-gray-600 mb-4">Add CoderVerse to your home screen for quick access!</p>
+        <div class="flex space-x-3 justify-center">
+            <button onclick="installApp()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                <i class="fas fa-download mr-2"></i>Install
+            </button>
+            <button onclick="dismissInstallPrompt()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">
+                Later
+            </button>
+        </div>
+    </div>
 
     <script>
         // Configuration
@@ -1698,6 +1679,135 @@ async function loadDashboard() {
         completedTopicsEl.textContent = userStats.completedTopics.length;
     }
 }
+
+
+/ PWA Install functionality
+        let deferredPrompt;
+        const installButtonDesktop = document.getElementById('install-button-desktop');
+        const installButtonMobile = document.getElementById('install-button-mobile');
+        const installPrompt = document.getElementById('install-prompt');
+
+        // Check if app is already installed
+        function isAppInstalled() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone === true;
+        }
+
+        // Show install buttons if PWA can be installed
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('beforeinstallprompt fired');
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            if (!isAppInstalled()) {
+                installButtonDesktop.classList.remove('hidden');
+                installButtonMobile.classList.remove('hidden');
+                
+                // Show install prompt after 3 seconds for first-time visitors
+                if (!localStorage.getItem('installPromptShown')) {
+                    setTimeout(() => {
+                        showInstallPrompt();
+                    }, 3000);
+                }
+            }
+        });
+
+        // Handle install button click
+        function showInstallPrompt() {
+            if (!localStorage.getItem('installPromptDismissed')) {
+                installPrompt.classList.remove('hidden');
+                localStorage.setItem('installPromptShown', 'true');
+            }
+        }
+
+        // Install the app
+        async function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                    hideInstallElements();
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+                
+                deferredPrompt = null;
+                installPrompt.classList.add('hidden');
+            }
+        }
+
+        // Dismiss install prompt
+        function dismissInstallPrompt() {
+            installPrompt.classList.add('hidden');
+            localStorage.setItem('installPromptDismissed', 'true');
+        }
+
+        // Hide install elements after successful installation
+        function hideInstallElements() {
+            installButtonDesktop.classList.add('hidden');
+            installButtonMobile.classList.add('hidden');
+            installPrompt.classList.add('hidden');
+        }
+
+        // Check if app was installed
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('App was installed');
+            hideInstallElements();
+        });
+
+        // iOS Safari specific install detection
+        if (isAppInstalled()) {
+            hideInstallElements();
+        }
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+// iOS specific install prompt for Safari
+        function showIOSInstallPrompt() {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isInStandaloneMode = window.navigator.standalone;
+            
+            if (isIOS && !isInStandaloneMode) {
+                const iosPrompt = document.createElement('div');
+                iosPrompt.className = 'install-prompt';
+                iosPrompt.innerHTML = `
+                    <h3 class="text-lg font-bold mb-2">Install CoderVerse</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        To install this app on your iOS device, tap 
+                        <i class="fas fa-share"></i> then "Add to Home Screen"
+                    </p>
+                    <button onclick="this.parentElement.remove()" class="bg-blue-600 text-white px-4 py-2 rounded-lg">
+                        Got it!
+                    </button>
+                `;
+                document.body.appendChild(iosPrompt);
+                
+                setTimeout(() => {
+                    if (iosPrompt.parentElement) {
+                        iosPrompt.remove();
+                    }
+                }, 8000);
+            }
+        }
+
+        // Show iOS prompt for Safari users
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.navigator.standalone) {
+            setTimeout(showIOSInstallPrompt, 5000);
+        }
+
+
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
