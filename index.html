@@ -9,17 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#3B82F6">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="CoderVerse">
     
-    <!-- Icons for different devices -->
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
-  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .topic-card:hover { transform: translateY(-2px); }
@@ -139,53 +129,6 @@
 }
 
 
-.section { transition: opacity 0.3s ease-in-out; }
-        .nav-btn { transition: all 0.2s ease; }
-        .timer-ring { 
-            transform: rotate(-90deg); 
-            transition: stroke-dashoffset 0.1s linear;
-        }
-        .progress-ring { transform: rotate(-90deg); }
-        
-        /* Install button styles */
-        .install-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            animation: pulse 2s infinite;
-        }
-        
-        .install-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
-            50% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.8); }
-            100% { box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
-        }
-        
-        .install-prompt {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            z-index: 1000;
-            max-width: 350px;
-            text-align: center;
-        }
-
     
 
     </style>
@@ -204,7 +147,7 @@
                 <!-- Desktop Navigation with Install Button -->
                 <div class="flex items-center space-x-4">
                     <nav class="hidden md:flex space-x-6">
-                        <button onclick="showSection('home')" class="nav-btn hover:text-blue-200 transition-colors">
+                        <button onclick="showSection('home')" class="nav-btn hover:text-blue-200 transition-colors active">
                             <i class="fas fa-home mr-2"></i>Home
                         </button>
                         <button onclick="showSection('learn')" class="nav-btn hover:text-blue-200 transition-colors">
@@ -223,8 +166,8 @@
                     
                     <!-- Install Button for Desktop -->
                     <button id="install-button-desktop" 
-                            class="hidden md:block bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium"
-                            style="display: none;">
+                            class="install-button hidden text-white px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium"
+                            onclick="showInstallPrompt()">
                         <i class="fas fa-download mr-2"></i>Install App
                     </button>
                 </div>
@@ -233,8 +176,8 @@
                 <div class="md:hidden flex items-center space-x-3">
                     <!-- Install Button for Mobile -->
                     <button id="install-button-mobile" 
-                            class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-3 py-2 rounded-lg transition-all duration-200 text-xs"
-                            style="display: none;">
+                            class="install-button hidden text-white px-3 py-2 rounded-lg transition-all duration-200 text-xs"
+                            onclick="showInstallPrompt()">
                         <i class="fas fa-download mr-1"></i>Install
                     </button>
                     
@@ -267,7 +210,7 @@
 
     <main class="container mx-auto px-4 py-8">
         <!-- Home Section -->
-        <section id="home-section" class="section">
+        <section id="home-section" class="section active">
             <div class="text-center mb-8">
                 <h2 class="text-4xl font-bold text-gray-800 mb-4">Learn C Programming</h2>
                 <p class="text-xl text-gray-600">Interactive learning with smart MCQs and concept-to-code mapping</p>
@@ -276,31 +219,78 @@
             <!-- Quick Stats -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div class="text-3xl font-bold text-blue-600" id="total-topics">0</div>
+                    <div class="text-3xl font-bold text-blue-600" id="total-topics">12</div>
                     <div class="text-gray-600">Topics Available</div>
                 </div>
                 <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div class="text-3xl font-bold text-green-600" id="completed-topics">0</div>
+                    <div class="text-3xl font-bold text-green-600" id="completed-topics">3</div>
                     <div class="text-gray-600">Completed</div>
                 </div>
                 <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div class="text-3xl font-bold text-purple-600" id="avg-score">0%</div>
+                    <div class="text-3xl font-bold text-purple-600" id="avg-score">85%</div>
                     <div class="text-gray-600">Average Score</div>
                 </div>
                 <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div class="text-3xl font-bold text-orange-600" id="total-time">0m</div>
+                    <div class="text-3xl font-bold text-orange-600" id="total-time">45m</div>
                     <div class="text-gray-600">Study Time</div>
                 </div>
             </div>
 
             <!-- Topics Grid -->
             <div id="topics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Topics will be loaded here -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer" onclick="selectTopic('variables')">
+                    <h3 class="text-xl font-semibold mb-2">Variables & Data Types</h3>
+                    <p class="text-gray-600 mb-4">Learn about different data types in C</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-green-600 font-semibold">Completed</span>
+                        <span class="text-sm text-gray-500">Score: 90%</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer" onclick="selectTopic('control')">
+                    <h3 class="text-xl font-semibold mb-2">Control Structures</h3>
+                    <p class="text-gray-600 mb-4">If-else, loops, and switch statements</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-blue-600 font-semibold">In Progress</span>
+                        <span class="text-sm text-gray-500">Score: 75%</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer" onclick="selectTopic('functions')">
+                    <h3 class="text-xl font-semibold mb-2">Functions</h3>
+                    <p class="text-gray-600 mb-4">Function declarations and definitions</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 font-semibold">Not Started</span>
+                        <span class="text-sm text-gray-500">Score: --</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer" onclick="selectTopic('arrays')">
+                    <h3 class="text-xl font-semibold mb-2">Arrays</h3>
+                    <p class="text-gray-600 mb-4">Working with arrays and strings</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 font-semibold">Not Started</span>
+                        <span class="text-sm text-gray-500">Score: --</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer" onclick="selectTopic('pointers')">
+                    <h3 class="text-xl font-semibold mb-2">Pointers</h3>
+                    <p class="text-gray-600 mb-4">Understanding pointers and memory</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 font-semibold">Not Started</span>
+                        <span class="text-sm text-gray-500">Score: --</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer" onclick="selectTopic('structures')">
+                    <h3 class="text-xl font-semibold mb-2">Structures</h3>
+                    <p class="text-gray-600 mb-4">User-defined data types</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 font-semibold">Not Started</span>
+                        <span class="text-sm text-gray-500">Score: --</span>
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- Learn Section -->
-        <section id="learn-section" class="section hidden">
+        <section id="learn-section" class="section">
             <div class="max-w-4xl mx-auto">
                 <!-- Session Settings -->
                 <div id="session-setup" class="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -310,6 +300,12 @@
                             <label class="block text-gray-700 font-semibold mb-2">Select Topic:</label>
                             <select id="topic-select" class="w-full p-3 border border-gray-300 rounded-lg">
                                 <option value="">Choose a topic...</option>
+                                <option value="variables">Variables & Data Types</option>
+                                <option value="control">Control Structures</option>
+                                <option value="functions">Functions</option>
+                                <option value="arrays">Arrays</option>
+                                <option value="pointers">Pointers</option>
+                                <option value="structures">Structures</option>
                             </select>
                         </div>
                         <div>
@@ -366,16 +362,6 @@
                     </div>
                 </div>
 
-                <!-- Code MCQ Section -->
-                <div id="code-mcq-section" class="hidden">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-2xl font-bold mb-4">Code Analysis Questions</h3>
-                        <div id="code-question-card">
-                            <!-- Code questions will be loaded here -->
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Results Section -->
                 <div id="results-section" class="hidden">
                     <div class="bg-white rounded-lg shadow-md p-6 text-center">
@@ -403,85 +389,94 @@
         </section>
 
         <!-- Analytics Section -->
-        <section id="analytics-section" class="section hidden">
+        <section id="analytics-section" class="section">
             <h2 class="text-3xl font-bold mb-6">Performance Analytics</h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-xl font-bold mb-4">Topic-wise Scores</h3>
-                    <canvas id="topic-scores-chart"></canvas>
+                    <div class="text-center text-gray-500 p-8">Analytics charts will be displayed here</div>
                 </div>
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-xl font-bold mb-4">Accuracy Rate</h3>
-                    <canvas id="accuracy-chart"></canvas>
+                    <div class="text-center text-gray-500 p-8">Accuracy charts will be displayed here</div>
                 </div>
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-xl font-bold mb-4">Study Time Distribution</h3>
-                    <canvas id="time-chart"></canvas>
+                    <div class="text-center text-gray-500 p-8">Time distribution charts will be displayed here</div>
                 </div>
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-xl font-bold mb-4">Progress Over Time</h3>
-                    <canvas id="progress-chart"></canvas>
+                    <div class="text-center text-gray-500 p-8">Progress charts will be displayed here</div>
                 </div>
             </div>
         </section>
 
         <!-- Progress Section -->
-        <section id="progress-section" class="section hidden">
+        <section id="progress-section" class="section">
             <h2 class="text-3xl font-bold mb-6">Learning Progress</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-xl font-bold mb-4">Topic Progress</h3>
-                        <div id="progress-list" class="space-y-4">
-                            <!-- Progress items will be loaded here -->
-                        </div>
-                    </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold mb-4">Overall Progress: 25%</h3>
+                <div class="w-full bg-gray-200 rounded-full h-3 mb-6">
+                    <div class="bg-blue-600 h-3 rounded-full" style="width: 25%"></div>
                 </div>
-                <div>
-                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                        <h3 class="text-xl font-bold mb-4">Overall Progress</h3>
-                        <div class="flex justify-center mb-4">
-                            <div class="relative w-32 h-32">
-                                <svg class="w-full h-full progress-ring">
-                                    <circle cx="64" cy="64" r="56" stroke="#e5e7eb" stroke-width="8" fill="none"></circle>
-                                    <circle id="overall-progress-circle" cx="64" cy="64" r="56" stroke="#3b82f6" 
-                                            stroke-width="8" fill="none" stroke-dasharray="352" stroke-dashoffset="352"></circle>
-                                </svg>
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <div id="overall-progress-text" class="text-2xl font-bold text-gray-800">0%</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="space-y-2">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Topics Completed:</span>
-                                <span id="topics-completed-count" class="font-semibold">0/12</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Total Sessions:</span>
-                                <span id="total-sessions-count" class="font-semibold">0</span>
-                            </div>
-                        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-600">3/12</div>
+                        <div class="text-gray-600">Topics Completed</div>
                     </div>
-                    
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-xl font-bold mb-4">Recent Activity</h3>
-                        <div id="recent-activity" class="space-y-3">
-                            <!-- Recent activity items will be loaded here -->
-                        </div>
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600">15</div>
+                        <div class="text-gray-600">Sessions Completed</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <div class="text-2xl font-bold text-purple-600">45m</div>
+                        <div class="text-gray-600">Total Study Time</div>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Concepts Section -->
-        <section id="concepts-section" class="section hidden">
+        <section id="concepts-section" class="section">
             <h2 class="text-3xl font-bold mb-6">Concept to Code Mapping</h2>
-            <div id="concepts-container" class="space-y-6">
-                <!-- Concept cards will be loaded here -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold mb-4">Variable Declaration</h3>
+                    <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                        <p class="text-gray-700 mb-2"><strong>Concept:</strong> Variables store data values</p>
+                        <p class="text-gray-700"><strong>Syntax:</strong> data_type variable_name;</p>
+                    </div>
+                    <div class="bg-black text-green-400 p-4 rounded-lg font-mono">
+                        <code>int age = 25;<br>char grade = 'A';<br>float price = 99.99;</code>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold mb-4">Control Structures</h3>
+                    <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                        <p class="text-gray-700 mb-2"><strong>Concept:</strong> Control flow of program execution</p>
+                        <p class="text-gray-700"><strong>Types:</strong> if-else, loops, switch</p>
+                    </div>
+                    <div class="bg-black text-green-400 p-4 rounded-lg font-mono">
+                        <code>if (score >= 90) {<br>&nbsp;&nbsp;printf("Grade A");<br>} else {<br>&nbsp;&nbsp;printf("Grade B");<br>}</code>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
+
+    <!-- Install Prompt Modal -->
+    <div id="install-prompt" class="install-prompt hidden">
+        <h3 class="text-lg font-bold mb-2">Install CoderVerse</h3>
+        <p class="text-gray-600 mb-4">Add CoderVerse to your home screen for quick access!</p>
+        <div class="flex space-x-3 justify-center">
+            <button onclick="installApp()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                <i class="fas fa-download mr-2"></i>Install
+            </button>
+            <button onclick="dismissInstallPrompt()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">
+                Later
+            </button>
+        </div>
+    </div>
     <script>
         // Configuration
 const SUPABASE_URL = 'https://nsnacwwcrszpjmanskti.supabase.co';
@@ -1760,7 +1755,7 @@ async function loadDashboard() {
 }
 
 
-/ PWA Install functionality
+// PWA Install functionality
         let deferredPrompt;
         const installButtonDesktop = document.getElementById('install-button-desktop');
         const installButtonMobile = document.getElementById('install-button-mobile');
