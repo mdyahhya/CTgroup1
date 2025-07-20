@@ -9,6 +9,24 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#007bff" />
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Interactive C programming learning platform with smart MCQs">
+    <meta name="theme-color" content="#3B82F6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CoderVerse">
+    <meta name="msapplication-TileColor" content="#3B82F6">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#3B82F6">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .topic-card:hover { transform: translateY(-2px); }
@@ -482,6 +500,14 @@
                 </div>
             </div>
 
+            <div id="install-button-container" class="fixed bottom-4 right-4 z-50 hidden">
+        <button onclick="showInstallPopup()" 
+                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-full shadow-lg transform transition-all duration-200 hover:scale-105 flex items-center gap-2">
+            <i class="fas fa-download"></i>
+            Install App
+        </button>
+    </div>
+
             <!-- Topics Grid -->
             <div id="topics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Topics will be loaded here -->
@@ -673,7 +699,7 @@
     </main>
 
 
-    <div id="install-popup-overlay" class="install-popup-overlay hidden" onclick="hideInstallPopup()">
+    <div id="install-popup-overlay" class="install-popup-overlay hidden" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-content-center" onclick="hideInstallPopup()">
     <div class="install-popup" onclick="event.stopPropagation()">
         <div class="install-popup-header">
             <h3 class="install-popup-title">Add to Home Screen</h3>
@@ -1983,142 +2009,772 @@ async function loadDashboard() {
     }
 }
 
+
+
+
+
+
+// Enhanced PWA Installation Handler with Persistent Detection
+let deferredPrompt = null;
+let isInstallable = false;
+let installCheckInterval = null;
+
+// Configuration
+const INSTALL_CHECK_INTERVAL = 5000; // Check every 5 seconds
+const INSTALL_STATE_KEY = 'pwa-install-state';
+
+// PWA Installation State Manager
+class PWAInstallManager {
+    constructor() {
+        this.isInstalled = false;
+        this.hasNativePrompt = false;
+        this.installState = this.getStoredInstallState();
+        this.setupEventListeners();
+        this.startInstallDetection();
+    }
+
+    getStoredInstallState() {
+        try {
+            const stored = localStorage.getItem(INSTALL_STATE_KEY);
+            return stored ? JSON.parse(stored) : {
+                attempted: false,
+                dismissed: false,
+                lastCheck: 0
+            };
+        } catch (e) {
+            return { attempted: false, dismissed: false, lastCheck: 0 };
+        }
+    }
+
+    saveInstallState() {
+        try {
+            localStorage.setItem(INSTALL_STATE_KEY, JSON.stringify({
+                ...this.installState,
+                lastCheck: Date.now()
+            }));
+        } catch (e) {
+            console.log('Could not save install state');
+        }
+    }
+
+    setupEventListeners() {
+        // Listen for the beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('PWA: beforeinstallprompt event fired');
+            e.preventDefault();
+            deferredPrompt = e;
+            this.hasNativePrompt = true;
+            isInstallable = true;
+            this.updateUI();
+        });
+
+        // Listen for successful app installation
+        window.addEventListener('appinstalled', (e) => {
+            console.log('PWA: App was installed successfully');
+            this.isInstalled = true;
+            this.hasNativePrompt = false;
+            deferredPrompt = null;
+            isInstallable = false;
+            this.installState.attempted = true;
+            this.saveInstallState();
+            this.updateUI();
+        });
+
+        // Listen for page visibility changes to recheck install status
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                setTimeout(() => this.checkInstallStatus(), 1000);
+            }
+        });
+
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            setTimeout(() => this.checkInstallStatus(), 2000);
+        });
+    }
+
+    // Comprehensive installation detection
+    checkInstallStatus() {
+        const wasInstalled = this.isInstalled;
+        this.isInstalled = this.detectInstallation();
+        
+        // If app was uninstalled, reset state and show install option again
+        if (wasInstalled && !this.isInstalled) {
+            console.log('PWA: App appears to have been uninstalled');
+            this.resetInstallState();
+        }
+        
+        // If installation status changed, update UI
+        if (wasInstalled !== this.isInstalled) {
+            this.updateUI();
+        }
+        
+        return this.isInstalled;
+    }
+
+    detectInstallation() {
+        // Method 1: Check if running in standalone mode
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            return true;
+        }
+
+        // Method 2: Check iOS standalone mode
+        if (window.navigator.standalone === true) {
+            return true;
+        }
+
+        // Method 3: Check for Android app referrer
+        if (document.referrer.includes('android-app://')) {
+            return true;
+        }
+
+        // Method 4: Check minimal-ui mode
+        if (window.matchMedia('(display-mode: minimal-ui)').matches) {
+            return true;
+        }
+
+        // Method 5: Check fullscreen mode
+        if (window.matchMedia('(display-mode: fullscreen)').matches) {
+            return true;
+        }
+
+        // Method 6: Check for WebView indicators
+        const userAgent = navigator.userAgent.toLowerCase();
+        if (userAgent.includes('wv') || userAgent.includes('webview')) {
+            return true;
+        }
+
+        // Method 7: Check URL parameters for PWA launch
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('utm_source') && 
+            (urlParams.get('utm_source') === 'homescreen' || 
+             urlParams.get('utm_source') === 'pwa')) {
+            return true;
+        }
+
+        // Method 8: Check for Chrome app installation (legacy)
+        if (window.chrome && window.chrome.app && window.chrome.app.isInstalled) {
+            return true;
+        }
+
+        // Method 9: Check screen dimensions (PWAs often run in different viewport)
+        if (window.outerWidth === window.innerWidth && 
+            window.outerHeight === window.innerHeight && 
+            window.screen.width === window.innerWidth) {
+            // Might be installed, but not definitive
+            return false; // Keep this conservative to avoid false positives
+        }
+
+        return false;
+    }
+
+    async checkInstalledRelatedApps() {
+        if ('getInstalledRelatedApps' in navigator) {
+            try {
+                const relatedApps = await navigator.getInstalledRelatedApps();
+                return relatedApps.length > 0;
+            } catch (error) {
+                console.log('PWA: getInstalledRelatedApps failed', error);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    startInstallDetection() {
+        // Initial check
+        this.checkInstallStatus();
+        
+        // Periodic checks
+        if (installCheckInterval) {
+            clearInterval(installCheckInterval);
+        }
+        
+        installCheckInterval = setInterval(() => {
+            this.checkInstallStatus();
+            
+            // Also check related apps API periodically
+            this.checkInstalledRelatedApps().then(hasRelatedApps => {
+                if (hasRelatedApps && !this.isInstalled) {
+                    this.isInstalled = true;
+                    this.updateUI();
+                }
+            });
+        }, INSTALL_CHECK_INTERVAL);
+    }
+
+    resetInstallState() {
+        this.installState = {
+            attempted: false,
+            dismissed: false,
+            lastCheck: Date.now()
+        };
+        this.hasNativePrompt = false;
+        this.saveInstallState();
+        
+        // Clear the deferred prompt since app might have been uninstalled
+        deferredPrompt = null;
+        isInstallable = false;
+    }
+
+    updateUI() {
+        const installContainer = document.getElementById('install-button-container');
+        const homeSection = document.getElementById('home-section');
+        
+        if (!installContainer) return;
+
+        // Always show install options if app is not installed
+        if (!this.isInstalled) {
+            // Show install button/container if we're on the home section
+            if (homeSection && !homeSection.classList.contains('hidden')) {
+                installContainer.classList.remove('hidden');
+            } else {
+                installContainer.classList.add('hidden');
+            }
+        } else {
+            // Hide install button if app is installed
+            installContainer.classList.add('hidden');
+        }
+    }
+
+    // Main install function
+    async showInstallPrompt() {
+        if (this.isInstalled) {
+            console.log('PWA: App is already installed');
+            return;
+        }
+
+        if (deferredPrompt && this.hasNativePrompt) {
+            // Use native Chrome install prompt
+            console.log('PWA: Showing native install prompt');
+            deferredPrompt.prompt();
+            
+            try {
+                const choiceResult = await deferredPrompt.userChoice;
+                console.log('PWA: User choice result:', choiceResult.outcome);
+                
+                if (choiceResult.outcome === 'accepted') {
+                    this.installState.attempted = true;
+                } else {
+                    this.installState.dismissed = true;
+                }
+                
+                this.saveInstallState();
+                deferredPrompt = null;
+                this.hasNativePrompt = false;
+                this.updateUI();
+                
+            } catch (error) {
+                console.log('PWA: Install prompt error:', error);
+                this.showManualInstallInstructions();
+            }
+        } else {
+            // Show manual installation instructions
+            this.showManualInstallInstructions();
+        }
+    }
+
+    showManualInstallInstructions() {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isAndroid = /Android/.test(navigator.userAgent);
+        const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+        const isChrome = /Chrome/.test(navigator.userAgent);
+        
+        let instructions = '';
+        let title = 'Install CoderVerse';
+        
+        if (isIOS && isSafari) {
+            title = 'Add CoderVerse to Home Screen';
+            instructions = `
+                <div class="install-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-text">Tap the Share button <i class="fas fa-share" style="color: #007AFF;"></i> at the bottom</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-text">Scroll down and tap <strong>"Add to Home Screen"</strong></div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-text">Tap <strong>"Add"</strong> to install</div>
+                    </div>
+                </div>
+            `;
+        } else if (isAndroid && isChrome) {
+            title = 'Install CoderVerse App';
+            instructions = `
+                <div class="install-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-text">Tap the menu (⋮) in the top right corner</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-text">Look for <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-text">Tap it and confirm installation</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            instructions = `
+                <div class="install-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-text">Look for an install icon in your browser's address bar</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-text">Or check the browser menu for "Install" options</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-text">Follow the prompts to install</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        this.createInstallModal(title, instructions);
+    }
+
+    createInstallModal(title, instructions) {
+        // Remove any existing modal
+        const existingModal = document.querySelector('.pwa-install-modal-overlay');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        const modal = document.createElement('div');
+        modal.className = 'pwa-install-modal-overlay';
+        modal.innerHTML = `
+            <div class="pwa-install-modal">
+                <button class="pwa-modal-close" onclick="this.closest('.pwa-install-modal-overlay').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="pwa-modal-header">
+                    <i class="fas fa-mobile-alt pwa-modal-icon"></i>
+                    <h3>${title}</h3>
+                    <p>Get the full app experience with offline access and faster loading!</p>
+                </div>
+                <div class="pwa-modal-body">
+                    ${instructions}
+                </div>
+                <div class="pwa-modal-footer">
+                    <button onclick="this.closest('.pwa-install-modal-overlay').remove()" 
+                            class="pwa-modal-btn-secondary">
+                        Maybe Later
+                    </button>
+                    <button onclick="this.closest('.pwa-install-modal-overlay').remove()" 
+                            class="pwa-modal-btn-primary">
+                        Got it!
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Add styles if not already present
+        if (!document.querySelector('#pwa-install-styles')) {
+            const styles = document.createElement('style');
+            styles.id = 'pwa-install-styles';
+            styles.textContent = `
+                .pwa-install-modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    backdrop-filter: blur(4px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    padding: 20px;
+                }
+                .pwa-install-modal {
+                    background: white;
+                    border-radius: 16px;
+                    max-width: 400px;
+                    width: 100%;
+                    position: relative;
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+                    animation: modalSlideIn 0.3s ease-out;
+                }
+                @keyframes modalSlideIn {
+                    from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+                    to { opacity: 1; transform: translateY(0) scale(1); }
+                }
+                .pwa-modal-close {
+                    position: absolute;
+                    top: 16px;
+                    right: 16px;
+                    background: #f3f4f6;
+                    border: none;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    color: #6b7280;
+                    transition: all 0.2s;
+                }
+                .pwa-modal-close:hover {
+                    background: #e5e7eb;
+                    color: #374151;
+                }
+                .pwa-modal-header {
+                    text-align: center;
+                    padding: 32px 24px 16px;
+                }
+                .pwa-modal-icon {
+                    font-size: 48px;
+                    color: #3B82F6;
+                    margin-bottom: 16px;
+                }
+                .pwa-modal-header h3 {
+                    margin: 0 0 8px 0;
+                    font-size: 24px;
+                    font-weight: 600;
+                    color: #1f2937;
+                }
+                .pwa-modal-header p {
+                    margin: 0;
+                    color: #6b7280;
+                    font-size: 16px;
+                    line-height: 1.5;
+                }
+                .pwa-modal-body {
+                    padding: 0 24px 24px;
+                }
+                .install-steps {
+                    space-y: 16px;
+                }
+                .step {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 16px;
+                    padding: 12px 0;
+                }
+                .step-number {
+                    background: #3B82F6;
+                    color: white;
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    font-weight: 600;
+                    flex-shrink: 0;
+                }
+                .step-text {
+                    color: #374151;
+                    line-height: 1.5;
+                    font-size: 15px;
+                }
+                .pwa-modal-footer {
+                    display: flex;
+                    gap: 12px;
+                    padding: 0 24px 24px;
+                }
+                .pwa-modal-btn-secondary, .pwa-modal-btn-primary {
+                    flex: 1;
+                    padding: 12px 16px;
+                    border-radius: 8px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    font-size: 14px;
+                }
+                .pwa-modal-btn-secondary {
+                    background: #f3f4f6;
+                    border: none;
+                    color: #374151;
+                }
+                .pwa-modal-btn-secondary:hover {
+                    background: #e5e7eb;
+                }
+                .pwa-modal-btn-primary {
+                    background: #3B82F6;
+                    border: none;
+                    color: white;
+                }
+                .pwa-modal-btn-primary:hover {
+                    background: #2563eb;
+                }
+            `;
+            document.head.appendChild(styles);
+        }
+        
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+        
+        // Restore scroll when modal is removed
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
+}
+
+// Initialize the PWA manager
+const pwaManager = new PWAInstallManager();
+
+// Public functions for backward compatibility
 function showInstallPopup() {
-    markInstallAttempted(); // Mark that user has attempted installation
-    document.getElementById('install-popup-overlay').classList.remove('hidden');
-    document.body.style.overflow = 'hidden'; // Prevent background scroll
+    pwaManager.showInstallPrompt();
 }
 
 function hideInstallPopup() {
-    document.getElementById('install-popup-overlay').classList.add('hidden');
-    document.body.style.overflow = 'auto'; // Restore background scroll
+    const overlay = document.getElementById('install-popup-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
 }
 
-// Check if app is installed (PWA)
 function isAppInstalled() {
-    // Check if user has already attempted installation (optional localStorage check)
-    if (localStorage.getItem('pwa-install-attempted') === 'true') {
-        return true;
-    }
-    
-    // Check if app is running in standalone mode (installed PWA)
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-        return true;
-    }
-    
-    // Check for iOS Safari standalone mode
-    if (window.navigator.standalone === true) {
-        return true;
-    }
-    
-    // Check if launched from home screen on Android
-    if (document.referrer.includes('android-app://')) {
-        return true;
-    }
-    
-    // Additional check for some browsers (minimal-ui mode)
-    if (window.matchMedia('(display-mode: minimal-ui)').matches) {
-        return true;
-    }
-    
-    // Check for fullscreen mode (some PWAs use this)
-    if (window.matchMedia('(display-mode: fullscreen)').matches) {
-        return true;
-    }
-    
-    // Check if running in a WebView (Android app wrapper)
-    if (window.navigator.userAgent.includes('wv')) {
-        return true;
-    }
-    
-    // Check for specific PWA indicators in URL or query parameters
-    if (window.location.search.includes('utm_source=homescreen') || 
-        window.location.search.includes('source=pwa')) {
-        return true;
-    }
-    
-    // Check if window.navigator.getInstalledRelatedApps is available and has results
-    if ('getInstalledRelatedApps' in window.navigator) {
-        // This is async, so we'll use a fallback approach
-        window.navigator.getInstalledRelatedApps().then(relatedApps => {
-            if (relatedApps.length > 0) {
-                // App is installed, update UI
-                document.getElementById('install-button-container').classList.add('hidden');
-            }
-        }).catch(() => {
-            // Ignore errors, continue with other checks
-        });
-    }
-    
-    // Check for Chrome/Edge PWA specific indicators
-    if (window.chrome && window.chrome.app && window.chrome.app.isInstalled) {
-        return true;
-    }
-    
-    // Check if app was opened from a PWA context
-    if (window.matchMedia('(display-mode: browser)').matches === false) {
-        return true;
-    }
-    
-    return false;
+    return pwaManager.isInstalled;
 }
 
-// Mark installation as attempted (call this when user clicks install)
 function markInstallAttempted() {
-    try {
-        localStorage.setItem('pwa-install-attempted', 'true');
-    } catch (e) {
-        // Handle localStorage errors gracefully
-        console.log('Could not save install state');
-    }
+    pwaManager.installState.attempted = true;
+    pwaManager.saveInstallState();
 }
 
-// Reset install state (useful for testing)
 function resetInstallState() {
-    try {
-        localStorage.removeItem('pwa-install-attempted');
-        toggleInstallButton();
-    } catch (e) {
-        console.log('Could not reset install state');
-    }
+    pwaManager.resetInstallState();
 }
 
-// Show/hide install button based on current section and installation status
 function toggleInstallButton() {
-    const installContainer = document.getElementById('install-button-container');
-    const homeSection = document.getElementById('home-section');
-    
-    // Hide button if app is already installed
-    if (isAppInstalled()) {
-        installContainer.classList.add('hidden');
-        return;
-    }
-    
-    // Show/hide based on current section
-    if (homeSection && !homeSection.classList.contains('hidden')) {
-        installContainer.classList.remove('hidden');
-    } else {
-        installContainer.classList.add('hidden');
-    }
+    pwaManager.updateUI();
 }
 
 // Close popup when pressing Escape key
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
+        const modal = document.querySelector('.pwa-install-modal-overlay');
+        if (modal) {
+            modal.remove();
+            document.body.style.overflow = 'auto';
+        }
         hideInstallPopup();
     }
 });
 
-// Initialize install button visibility on page load
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    toggleInstallButton();
-    
-    // Listen for display mode changes (when app gets installed)
-    window.matchMedia('(display-mode: standalone)').addEventListener('change', function(e) {
-        toggleInstallButton();
-    });
+    // Give a moment for other scripts to load
+    setTimeout(() => {
+        pwaManager.checkInstallStatus();
+        pwaManager.updateUI();
+    }, 500);
 });
-    
+
+// Export for use in other scripts
+window.pwaManager = pwaManager;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js', {
+                    scope: '/',
+                    updateViaCache: 'none' // Always check for updates
+                })
+                .then((registration) => {
+                    console.log('PWA: Service Worker registered successfully:', registration.scope);
+                    
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('PWA: New version available');
+                                showUpdateNotification(registration);
+                            }
+                        });
+                    });
+                    
+                    // Listen for messages from service worker
+                    navigator.serviceWorker.addEventListener('message', (event) => {
+                        console.log('PWA: Message from service worker:', event.data);
+                        
+                        if (event.data.type === 'BACKGROUND_SYNC_COMPLETE') {
+                            console.log('PWA: Background sync completed');
+                            // Refresh UI or show notification
+                        }
+                        
+                        if (event.data.type === 'NOTIFICATION_CLICK') {
+                            // Handle notification click navigation
+                            if (event.data.url && event.data.url !== window.location.pathname) {
+                                window.location.href = event.data.url;
+                            }
+                        }
+                        
+                        if (event.data.type === 'CONTENT_SYNC_COMPLETE') {
+                            // Handle content update
+                            console.log('PWA: Content synced:', event.data.data);
+                        }
+                    });
+                })
+                .catch((error) => {
+                    console.log('PWA: Service Worker registration failed:', error);
+                });
+                
+                // Handle service worker updates
+                navigator.serviceWorker.ready.then((registration) => {
+                    // Enable periodic background sync if supported
+                    if ('periodicSync' in registration) {
+                        registration.periodicSync.register('content-sync', {
+                            minInterval: 24 * 60 * 60 * 1000, // 24 hours
+                        }).catch(err => console.log('Periodic sync registration failed:', err));
+                    }
+                });
+            });
+            
+            // Handle page visibility changes for better PWA experience
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden && navigator.serviceWorker.controller) {
+                    // Check for updates when app becomes visible
+                    navigator.serviceWorker.controller.postMessage({
+                        type: 'CHECK_UPDATE'
+                    });
+                }
+            });
+        }
+        
+        // Show update notification
+        function showUpdateNotification(registration) {
+            const updateBanner = document.createElement('div');
+            updateBanner.className = 'fixed top-0 left-0 right-0 bg-blue-600 text-white p-4 z-50 transform -translate-y-full transition-transform duration-300';
+            updateBanner.innerHTML = `
+                <div class="flex items-center justify-between max-w-4xl mx-auto">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>A new version of CoderVerse is available!</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="updateApp()" class="bg-white text-blue-600 px-4 py-1 rounded text-sm font-medium hover:bg-gray-100">
+                            Update Now
+                        </button>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" class="text-white hover:text-gray-200">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(updateBanner);
+            setTimeout(() => {
+                updateBanner.style.transform = 'translateY(0)';
+            }, 100);
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                if (updateBanner.parentElement) {
+                    updateBanner.style.transform = 'translateY(-100%)';
+                    setTimeout(() => updateBanner.remove(), 300);
+                }
+            }, 10000);
+            
+            window.updateApp = () => {
+                if (registration.waiting) {
+                    registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    window.location.reload();
+                }
+            };
+        }
+        
+        // Handle app shortcuts
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('shortcut') === 'learn') {
+            // Navigate to learning section
+            console.log('PWA: Launched via learn shortcut');
+            // Add your navigation logic here
+        } else if (urlParams.get('shortcut') === 'progress') {
+            // Navigate to progress section
+            console.log('PWA: Launched via progress shortcut');
+            // Add your navigation logic here
+        }
+        
+        // Enhanced error handling for PWA
+        window.addEventListener('error', (event) => {
+            console.log('PWA: Global error:', event.error);
+            // You can send error reports to your analytics here
+        });
+        
+        window.addEventListener('unhandledrejection', (event) => {
+            console.log('PWA: Unhandled promise rejection:', event.reason);
+            // Handle promise rejections
+        });
+        
+        // Network status handling
+        window.addEventListener('online', () => {
+            console.log('PWA: Back online');
+            // Show online indicator or sync data
+            const offlineBanner = document.querySelector('.offline-banner');
+            if (offlineBanner) {
+                offlineBanner.remove();
+            }
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('PWA: Gone offline');
+            // Show offline indicator
+            const offlineBanner = document.createElement('div');
+            offlineBanner.className = 'offline-banner fixed top-0 left-0 right-0 bg-red-600 text-white p-2 text-center z-40';
+            offlineBanner.innerHTML = '<i class="fas fa-wifi-slash"></i> You are offline. Some features may not be available.';
+            document.body.appendChild(offlineBanner);
+        });
+        
+        // Performance monitoring (optional)
+        if ('performance' in window && 'PerformanceObserver' in window) {
+            const observer = new PerformanceObserver((list) => {
+                list.getEntries().forEach((entry) => {
+                    if (entry.entryType === 'largest-contentful-paint') {
+                        console.log('PWA: LCP:', entry.startTime);
+                    }
+                    if (entry.entryType === 'first-input') {
+                        console.log('PWA: FID:', entry.processingStart - entry.startTime);
+                    }
+                    if (entry.entryType === 'layout-shift' && !entry.hadRecentInput) {
+                        console.log('PWA: CLS:', entry.value);
+                    }
+                });
+            });
+            
+            try {
+                observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] });
+            } catch (e) {
+                // Some metrics might not be supported
+            }
+        }
 
 
 // function showInstallPopup() {
@@ -2167,5 +2823,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
     </script>
+    <script src="/sw.js"></script>
 </body>
 </html>
