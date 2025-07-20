@@ -117,6 +117,16 @@
         color: #d1d5db;
     }
 }
+#install-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -178,6 +188,7 @@
         <!-- Home Section -->
         <section id="home-section" class="section">
             <div class="text-center mb-8">
+                <button id="install-button" style="display: none;">Add to Home Screen</button>
                 <h2 class="text-4xl font-bold text-gray-800 mb-4">Master C Programming</h2>
                 <p class="text-xl text-gray-600">Interactive learning with smart MCQs and concept-to-code mapping</p>
             </div>
@@ -420,6 +431,30 @@ function initializeSupabase() {
         return false;
     }
 }
+
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Stop the automatic mini-infobar
+    e.preventDefault();
+    deferredPrompt = e;
+
+    // Show your custom button
+    document.getElementById('install-button').style.display = 'block';
+});
+
+document.getElementById('install-button').addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt(); // Show the default prompt
+
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to install prompt: ${outcome}`);
+
+        deferredPrompt = null; // Clear it
+        document.getElementById('install-button').style.display = 'none';
+    }
+});
+
 
 // Browser back button handling
 function setupBackButtonHandling() {
