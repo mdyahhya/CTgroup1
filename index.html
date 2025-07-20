@@ -1983,10 +1983,8 @@ async function loadDashboard() {
     }
 }
 
-
-
-
 function showInstallPopup() {
+    markInstallAttempted(); // Mark that user has attempted installation
     document.getElementById('install-popup-overlay').classList.remove('hidden');
     document.body.style.overflow = 'hidden'; // Prevent background scroll
 }
@@ -1996,11 +1994,107 @@ function hideInstallPopup() {
     document.body.style.overflow = 'auto'; // Restore background scroll
 }
 
-// Show/hide install button based on current section
+// Check if app is installed (PWA)
+function isAppInstalled() {
+    // Check if user has already attempted installation (optional localStorage check)
+    if (localStorage.getItem('pwa-install-attempted') === 'true') {
+        return true;
+    }
+    
+    // Check if app is running in standalone mode (installed PWA)
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        return true;
+    }
+    
+    // Check for iOS Safari standalone mode
+    if (window.navigator.standalone === true) {
+        return true;
+    }
+    
+    // Check if launched from home screen on Android
+    if (document.referrer.includes('android-app://')) {
+        return true;
+    }
+    
+    // Additional check for some browsers (minimal-ui mode)
+    if (window.matchMedia('(display-mode: minimal-ui)').matches) {
+        return true;
+    }
+    
+    // Check for fullscreen mode (some PWAs use this)
+    if (window.matchMedia('(display-mode: fullscreen)').matches) {
+        return true;
+    }
+    
+    // Check if running in a WebView (Android app wrapper)
+    if (window.navigator.userAgent.includes('wv')) {
+        return true;
+    }
+    
+    // Check for specific PWA indicators in URL or query parameters
+    if (window.location.search.includes('utm_source=homescreen') || 
+        window.location.search.includes('source=pwa')) {
+        return true;
+    }
+    
+    // Check if window.navigator.getInstalledRelatedApps is available and has results
+    if ('getInstalledRelatedApps' in window.navigator) {
+        // This is async, so we'll use a fallback approach
+        window.navigator.getInstalledRelatedApps().then(relatedApps => {
+            if (relatedApps.length > 0) {
+                // App is installed, update UI
+                document.getElementById('install-button-container').classList.add('hidden');
+            }
+        }).catch(() => {
+            // Ignore errors, continue with other checks
+        });
+    }
+    
+    // Check for Chrome/Edge PWA specific indicators
+    if (window.chrome && window.chrome.app && window.chrome.app.isInstalled) {
+        return true;
+    }
+    
+    // Check if app was opened from a PWA context
+    if (window.matchMedia('(display-mode: browser)').matches === false) {
+        return true;
+    }
+    
+    return false;
+}
+
+// Mark installation as attempted (call this when user clicks install)
+function markInstallAttempted() {
+    try {
+        localStorage.setItem('pwa-install-attempted', 'true');
+    } catch (e) {
+        // Handle localStorage errors gracefully
+        console.log('Could not save install state');
+    }
+}
+
+// Reset install state (useful for testing)
+function resetInstallState() {
+    try {
+        localStorage.removeItem('pwa-install-attempted');
+        toggleInstallButton();
+    } catch (e) {
+        console.log('Could not reset install state');
+    }
+}
+
+// Show/hide install button based on current section and installation status
 function toggleInstallButton() {
     const installContainer = document.getElementById('install-button-container');
     const homeSection = document.getElementById('home-section');
     
+    // Hide button if app is already installed
+    if (isAppInstalled()) {
+        installContainer.classList.add('hidden');
+        return;
+    }
+    
+    // Show/hide based on current section
     if (homeSection && !homeSection.classList.contains('hidden')) {
         installContainer.classList.remove('hidden');
     } else {
@@ -2018,7 +2112,48 @@ document.addEventListener('keydown', function(event) {
 // Initialize install button visibility on page load
 document.addEventListener('DOMContentLoaded', function() {
     toggleInstallButton();
+    
+    // Listen for display mode changes (when app gets installed)
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', function(e) {
+        toggleInstallButton();
+    });
 });
+    
+
+
+// function showInstallPopup() {
+//     document.getElementById('install-popup-overlay').classList.remove('hidden');
+//     document.body.style.overflow = 'hidden'; // Prevent background scroll
+// }
+
+// function hideInstallPopup() {
+//     document.getElementById('install-popup-overlay').classList.add('hidden');
+//     document.body.style.overflow = 'auto'; // Restore background scroll
+// }
+
+// // Show/hide install button based on current section
+// function toggleInstallButton() {
+//     const installContainer = document.getElementById('install-button-container');
+//     const homeSection = document.getElementById('home-section');
+    
+//     if (homeSection && !homeSection.classList.contains('hidden')) {
+//         installContainer.classList.remove('hidden');
+//     } else {
+//         installContainer.classList.add('hidden');
+//     }
+// }
+
+// // Close popup when pressing Escape key
+// document.addEventListener('keydown', function(event) {
+//     if (event.key === 'Escape') {
+//         hideInstallPopup();
+//     }
+// });
+
+// // Initialize install button visibility on page load
+// document.addEventListener('DOMContentLoaded', function() {
+//     toggleInstallButton();
+// });
     
 
 // Initialize the application
