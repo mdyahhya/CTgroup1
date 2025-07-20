@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#007bff" />
-    <title>CoderVerse by CT group</title>
+    <title>Learn C Programming - Concept to Code</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .topic-card:hover { transform: translateY(-2px); }
@@ -118,19 +115,6 @@
         color: #d1d5db;
     }
 }
-#install-button {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-
-    
-
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -170,19 +154,19 @@
         </div>
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden bg-blue-700 px-4 py-2">
-            <button onclick="showSection('home')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
-                <i class="fas fa-home mr-2"></i>Home
-            </button>
-            <button onclick="showSection('learn')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+            <button onclick="showSectionAndCloseMobile('home')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+    <i class="fas fa-home mr-2"></i>Home
+</button>
+            <button onclick="showSectionAndCloseMobile('learn')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
                 <i class="fas fa-graduation-cap mr-2"></i>Learn
             </button>
-            <button onclick="showSection('analytics')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+            <button onclick="showSectionAndCloseMobile('analytics')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
                 <i class="fas fa-chart-bar mr-2"></i>Analytics
             </button>
-            <button onclick="showSection('progress')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+            <button onclick="showSectionAndCloseMobile('progress')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
                 <i class="fas fa-trophy mr-2"></i>Progress
             </button>
-            <button onclick="showSection('concepts')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
+            <button onclick="showSectionAndCloseMobile('concepts')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
                 <i class="fas fa-lightbulb mr-2"></i>Concepts
             </button>
         </div>
@@ -405,6 +389,7 @@
             </div>
         </section>
     </main>
+
     <script>
         // Configuration
 const SUPABASE_URL = 'https://nsnacwwcrszpjmanskti.supabase.co';
@@ -433,30 +418,6 @@ function initializeSupabase() {
         return false;
     }
 }
-
-let deferredPrompt;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    // Stop the automatic mini-infobar
-    e.preventDefault();
-    deferredPrompt = e;
-
-    // Show your custom button
-    document.getElementById('install-button').style.display = 'block';
-});
-
-document.getElementById('install-button').addEventListener('click', async () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt(); // Show the default prompt
-
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`User response to install prompt: ${outcome}`);
-
-        deferredPrompt = null; // Clear it
-        document.getElementById('install-button').style.display = 'none';
-    }
-});
-
 
 // Browser back button handling
 function setupBackButtonHandling() {
@@ -1681,10 +1642,6 @@ async function loadDashboard() {
         completedTopicsEl.textContent = userStats.completedTopics.length;
     }
 }
-
-
-
-
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
