@@ -138,37 +138,57 @@
                     <i class="fas fa-code text-2xl"></i>
                     <h1 class="text-3xl font-bold">CoderVerse</h1>
                     <p class="text-sm text-gray-200 mt-1">By Continental Group</p>
-                    
                 </div>
-                <nav class="hidden md:flex space-x-6">
-                    <button onclick="showSection('home')" class="nav-btn hover:text-blue-200 transition-colors">
-                        <i class="fas fa-home mr-2"></i>Home
+
+                <!-- Desktop Navigation with Install Button -->
+                <div class="flex items-center space-x-4">
+                    <nav class="hidden md:flex space-x-6">
+                        <button onclick="showSection('home')" class="nav-btn hover:text-blue-200 transition-colors">
+                            <i class="fas fa-home mr-2"></i>Home
+                        </button>
+                        <button onclick="showSection('learn')" class="nav-btn hover:text-blue-200 transition-colors">
+                            <i class="fas fa-graduation-cap mr-2"></i>Learn
+                        </button>
+                        <button onclick="showSection('analytics')" class="nav-btn hover:text-blue-200 transition-colors">
+                            <i class="fas fa-chart-bar mr-2"></i>Analytics
+                        </button>
+                        <button onclick="showSection('progress')" class="nav-btn hover:text-blue-200 transition-colors">
+                            <i class="fas fa-trophy mr-2"></i>Progress
+                        </button>
+                        <button onclick="showSection('concepts')" class="nav-btn hover:text-blue-200 transition-colors">
+                            <i class="fas fa-lightbulb mr-2"></i>Concepts
+                        </button>
+                    </nav>
+                    
+                    <!-- Install Button for Desktop -->
+                    <button id="install-button-desktop" 
+                            class="hidden md:block bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium"
+                            style="display: none;">
+                        <i class="fas fa-download mr-2"></i>Install App
                     </button>
-                    <button onclick="showSection('learn')" class="nav-btn hover:text-blue-200 transition-colors">
-                        <i class="fas fa-graduation-cap mr-2"></i>Learn
+                </div>
+
+                <!-- Mobile Hamburger Menu -->
+                <div class="md:hidden flex items-center space-x-3">
+                    <!-- Install Button for Mobile -->
+                    <button id="install-button-mobile" 
+                            class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-3 py-2 rounded-lg transition-all duration-200 text-xs"
+                            style="display: none;">
+                        <i class="fas fa-download mr-1"></i>Install
                     </button>
-                    <button onclick="showSection('analytics')" class="nav-btn hover:text-blue-200 transition-colors">
-                        <i class="fas fa-chart-bar mr-2"></i>Analytics
-                    </button>
-                    <button onclick="showSection('progress')" class="nav-btn hover:text-blue-200 transition-colors">
-                        <i class="fas fa-trophy mr-2"></i>Progress
-                    </button>
-                    <button onclick="showSection('concepts')" class="nav-btn hover:text-blue-200 transition-colors">
-                        <i class="fas fa-lightbulb mr-2"></i>Concepts
-                    </button>
-                </nav>
-                <div class="md:hidden">
+                    
                     <button onclick="toggleMobileMenu()" class="text-white">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                 </div>
             </div>
         </div>
+
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden bg-blue-700 px-4 py-2">
             <button onclick="showSectionAndCloseMobile('home')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
-    <i class="fas fa-home mr-2"></i>Home
-</button>
+                <i class="fas fa-home mr-2"></i>Home
+            </button>
             <button onclick="showSectionAndCloseMobile('learn')" class="block w-full text-left py-2 hover:bg-blue-600 rounded px-3">
                 <i class="fas fa-graduation-cap mr-2"></i>Learn
             </button>
@@ -188,8 +208,7 @@
         <!-- Home Section -->
         <section id="home-section" class="section">
             <div class="text-center mb-8">
-                <button id="install-button" style="display: none;">Add to Home Screen</button>
-                <h2 class="text-4xl font-bold text-gray-800 mb-4">Master C Programming</h2>
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Learn C Programming</h2>
                 <p class="text-xl text-gray-600">Interactive learning with smart MCQs and concept-to-code mapping</p>
             </div>
 
