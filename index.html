@@ -130,30 +130,32 @@
 
 /* Install App Button Styles */
 .install-button-container {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: transparent;
     padding: 12px 16px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    
 }
 
 .install-app-button {
-    width: 100%;
-    max-width: 320px;
-    margin: 0 auto;
+    width: 100%;              /* Full width (or set fixed width like 280px) */
+    max-width: 300px;         /* Controls max button length */
+    margin-left: 0; /* Align to the left */
+    margin-right: auto; /* Push to the left */
     display: flex;
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.95);
     color: #4f46e5;
     border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
-    padding: 12px 20px;
-    font-size: 14px;
+    border-radius: 8px; /* Slightly smaller radius */
+    padding: 6px 0px; /* Smaller padding */
+    font-size: 13px; /* Smaller font */
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); /* Softer shadow */
 }
+
 
 .install-app-button:hover {
     background: rgba(255, 255, 255, 1);
@@ -443,7 +445,7 @@
         </div>
     </header>
 
-    <div class="install-button-container">
+    <div id="install-button-container" class="install-button-container hidden">
     <button id="install-app-btn" class="install-app-button" onclick="showInstallPopup()">
         <i class="fas fa-download mr-2"></i>
         Install App to Home Screen
@@ -686,7 +688,7 @@
                 <div class="step-content">
                     <p class="step-text">Tap the menu button (3 dots) in top right corner</p>
                     <div class="step-image-placeholder">
-                        <img src="step1-image.png" alt="Step 1" class="step-image">
+                        <img src="3dotschrome.jpg" alt="Step 1" class="step-image">
                         <!-- Replace with your actual image -->
                     </div>
                 </div>
@@ -697,7 +699,7 @@
                 <div class="step-content">
                     <p class="step-text">Tap "Add to Home Screen"</p>
                     <div class="step-image-placeholder">
-                        <img src="step2-image.png" alt="Step 2" class="step-image">
+                        <img src="chromesidebar.jpg" alt="Step 2" class="step-image">
                         <!-- Replace with your actual image -->
                     </div>
                 </div>
@@ -708,7 +710,7 @@
                 <div class="step-content">
                     <p class="step-text">Tap "Install" to add the app</p>
                     <div class="step-image-placeholder">
-                        <img src="step3-image.png" alt="Step 3" class="step-image">
+                        <img src="installpopup.jpg" alt="Step 3" class="step-image">
                         <!-- Replace with your actual image -->
                     </div>
                 </div>
@@ -1596,6 +1598,7 @@ function showSection(sectionName, addToHistory = true) {
         if (element) {
             element.classList.add('hidden');
         }
+        
     });
 
     // Show selected section
@@ -1647,7 +1650,9 @@ switch (sectionName) {
         case 'concepts':
             loadConcepts();
             break;
+            
     }
+    toggleInstallButton();
 }
 
 // Enhanced back button handling
@@ -1991,11 +1996,28 @@ function hideInstallPopup() {
     document.body.style.overflow = 'auto'; // Restore background scroll
 }
 
+// Show/hide install button based on current section
+function toggleInstallButton() {
+    const installContainer = document.getElementById('install-button-container');
+    const homeSection = document.getElementById('home-section');
+    
+    if (homeSection && !homeSection.classList.contains('hidden')) {
+        installContainer.classList.remove('hidden');
+    } else {
+        installContainer.classList.add('hidden');
+    }
+}
+
 // Close popup when pressing Escape key
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         hideInstallPopup();
     }
+});
+
+// Initialize install button visibility on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleInstallButton();
 });
     
 
