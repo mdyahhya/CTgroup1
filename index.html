@@ -857,7 +857,7 @@ async function loadAnalytics() {
     new Chart(progressCtx, {
         type: 'line',
         data: {
-            labels: last7Sessions.map((_, index) => Session ${index + 1}),
+            labels: last7Sessions.map((_, index) => `Session ${index + 1}`),
             datasets: [{
                 label: 'Score (%)',
                 data: last7Sessions.map(session => session.score),
@@ -918,8 +918,8 @@ async function loadProgress() {
 
         // Update overall progress
         const overallProgress = Math.round((userStats.completedTopics.length / topics.length) * 100);
-        document.getElementById('overall-progress-text').textContent = ${overallProgress}%;
-        document.getElementById('topics-completed-count').textContent = ${userStats.completedTopics.length}/${topics.length};
+        document.getElementById('overall-progress-text').textContent = `${overallProgress}%`;
+        document.getElementById('topics-completed-count').textContent = `${userStats.completedTopics.length}/${topics.length}`;
         document.getElementById('total-sessions-count').textContent = getSessionHistory().length;
 
         // Update progress circle
@@ -1094,7 +1094,7 @@ function startSessionTimer(seconds) {
         
         const minutes = Math.floor(remainingTime / 60);
         const secs = remainingTime % 60;
-        timerDisplay.textContent = ${minutes}:${secs.toString().padStart(2, '0')};
+        timerDisplay.textContent = `${minutes}:${secs.toString().padStart(2, '0')}`;
 
         // Update circular progress
         const progress = remainingTime / seconds;
@@ -1113,7 +1113,7 @@ function loadQuestion() {
     if (!question) return;
 
     document.getElementById('question-text').textContent = question.question;
-    document.getElementById('question-counter').textContent = Question ${currentQuestionIndex + 1} of ${sessionQuestions.length};
+    document.getElementById('question-counter').textContent = `Question ${currentQuestionIndex + 1} of ${sessionQuestions.length}`;
 
     const optionsContainer = document.getElementById('options-container');
     optionsContainer.innerHTML = '';
@@ -1129,7 +1129,7 @@ function loadQuestion() {
                 <div class="w-6 h-6 rounded-full border-2 border-gray-300 mr-3 flex items-center justify-center">
                     <span class="text-sm font-bold">${option}</span>
                 </div>
-                <span>${question[option_${option.toLowerCase()}]}</span>
+                <span>${question[`option_${option.toLowerCase()}`]}</span>
             </div>
             <div class="result-indicator hidden mt-2 text-sm font-medium"></div>
         `;
@@ -1219,7 +1219,7 @@ function selectOption(option, optionElement) {
     // Update score display
     const correctCount = userAnswers.filter((answer, index) => 
         answer === sessionQuestions[index]?.correct_option).length;
-    document.getElementById('score-display').textContent = Score: ${correctCount};
+    document.getElementById('score-display').textContent = `Score: ${correctCount}`;
 }
 
 function previousQuestion() {
@@ -1343,7 +1343,7 @@ function loadCodeQuestions(codeMcqs) {
                             <div class="w-6 h-6 rounded-full border-2 border-gray-300 mr-3 flex items-center justify-center">
                                 <span class="text-sm font-bold">${option}</span>
                             </div>
-                            <span>${question[option_${option.toLowerCase()}]}</span>
+                            <span>${question[`option_${option.toLowerCase()}`]}</span>
                         </div>
                         <div class="result-indicator hidden mt-2 text-sm font-medium"></div>
                     </div>
@@ -1469,9 +1469,9 @@ function showResults() {
     const latestSession = sessionHistory[sessionHistory.length - 1];
 
     // Update result displays
-    document.getElementById('final-score').textContent = ${latestSession.score}%;
-    document.getElementById('correct-answers').textContent = ${latestSession.correctAnswers}/${latestSession.totalQuestions};
-    document.getElementById('time-taken').textContent = ${Math.floor(latestSession.duration / 60)}m ${latestSession.duration % 60}s;
+    document.getElementById('final-score').textContent = `${latestSession.score}%`;
+    document.getElementById('correct-answers').textContent = `${latestSession.correctAnswers}/${latestSession.totalQuestions}`;
+    document.getElementById('time-taken').textContent = `${Math.floor(latestSession.duration / 60)}m ${latestSession.duration % 60}s`;
 
     // Show detailed review
     showDetailedReview(latestSession);
@@ -1505,7 +1505,7 @@ function showDetailedReview(session) {
                     <p class="text-gray-800 font-medium mb-3">${question.question}</p>
                     <div class="space-y-2">
                         ${['A', 'B', 'C', 'D'].map(option => {
-                            const optionText = question[option_${option.toLowerCase()}];
+                            const optionText = question[`option_${option.toLowerCase()}`];
                             let optionClass = 'text-gray-600';
                             let icon = '';
                             
@@ -1517,7 +1517,7 @@ function showDetailedReview(session) {
                                 icon = '✗ ';
                             }
                             
-                            return <div class="${optionClass}">${icon}${option}. ${optionText}</div>;
+                            return `<div class="${optionClass}">${icon}${option}. ${optionText}</div>`;
                         }).join('')}
                     </div>
                     ${question.explanation ? `
@@ -1552,7 +1552,7 @@ function showDetailedReview(session) {
                     <pre class="bg-gray-100 p-3 rounded-lg overflow-x-auto mb-3 text-sm"><code>${question.code_snippet}</code></pre>
                     <div class="space-y-2">
                         ${['A', 'B', 'C', 'D'].map(option => {
-                            const optionText = question[option_${option.toLowerCase()}];
+                            const optionText = question[`option_${option.toLowerCase()}`];
                             let optionClass = 'text-gray-600';
                             let icon = '';
                             
@@ -1564,7 +1564,7 @@ function showDetailedReview(session) {
                                 icon = '✗ ';
                             }
                             
-                            return <div class="${optionClass}">${icon}${option}. ${optionText}</div>;
+                            return `<div class="${optionClass}">${icon}${option}. ${optionText}</div>`;
                         }).join('')}
                     </div>
                     ${question.explanation ? `
@@ -1602,7 +1602,7 @@ function showSection(sectionName, addToHistory = true) {
     });
 
     // Show selected section
-    const targetSection = document.getElementById(${sectionName}-section);
+    const targetSection = document.getElementById(`${sectionName}-section`);
     if (targetSection) {
         targetSection.classList.remove('hidden');
     }
@@ -1749,4 +1749,429 @@ function resetSessionStates() {
     
     // Clear timer display
     const timerDisplay = document.getElementById('time-remaining');
-    if (timer
+    if (timerDisplay) {
+        timerDisplay.textContent = '0:00';
+    }
+    
+    // Reset timer circle
+    const timerCircle = document.getElementById('timer-circle');
+    if (timerCircle) {
+        timerCircle.style.strokeDashoffset = 0;
+    }
+    
+    // Reset topic selection
+    const topicSelect = document.getElementById('topic-select');
+    if (topicSelect) {
+        topicSelect.value = '';
+    }
+    
+    // Reset duration selection
+    const durationSelect = document.getElementById('duration-select');
+    if (durationSelect) {
+        durationSelect.value = '15';
+    }
+    
+    // Show session setup and hide other sections
+    const sessionSetup = document.getElementById('session-setup');
+    const mcqSession = document.getElementById('mcq-session');
+    const codeMcqSection = document.getElementById('code-mcq-section');
+    const resultsSection = document.getElementById('results-section');
+    
+    if (sessionSetup) sessionSetup.classList.remove('hidden');
+    if (mcqSession) mcqSession.classList.add('hidden');
+    if (codeMcqSection) codeMcqSection.classList.add('hidden');
+    if (resultsSection) resultsSection.classList.add('hidden');
+    
+    // Clear any existing question content
+    const questionText = document.getElementById('question-text');
+    if (questionText) {
+        questionText.textContent = '';
+    }
+    
+    const optionsContainer = document.getElementById('options-container');
+    if (optionsContainer) {
+        optionsContainer.innerHTML = '';
+    }
+    
+    // Remove any explanation divs
+    const explanationDiv = document.getElementById('question-explanation');
+    if (explanationDiv) {
+        explanationDiv.remove();
+    }
+    
+    const codeExplanationDiv = document.getElementById('code-question-explanation');
+    if (codeExplanationDiv) {
+        codeExplanationDiv.remove();
+    }
+    
+    // Remove detailed review
+    const detailedReview = document.getElementById('detailed-review');
+    if (detailedReview) {
+        detailedReview.remove();
+    }
+}
+
+// Enhanced option selection with immediate feedback
+function selectOption(option, optionElement) {
+    const question = sessionQuestions[currentQuestionIndex];
+    const correctOption = question.correct_option;
+    
+    // Remove previous selection and results
+    document.querySelectorAll('.option-button').forEach(btn => {
+        btn.classList.remove('bg-blue-100', 'border-blue-500', 'bg-green-100', 'border-green-500', 'bg-red-100', 'border-red-500');
+        btn.classList.add('bg-gray-50', 'border-gray-200');
+        const indicator = btn.querySelector('.result-indicator');
+        if (indicator) {
+            indicator.classList.add('hidden');
+        }
+    });
+
+    // Store answer
+    userAnswers[currentQuestionIndex] = option;
+
+    // Show results immediately with color coding and small text
+    document.querySelectorAll('.option-button').forEach((btn, index) => {
+        const optionLetter = ['A', 'B', 'C', 'D'][index];
+        const indicator = btn.querySelector('.result-indicator');
+        
+        if (optionLetter === correctOption) {
+            // Correct answer - always show in green
+            btn.classList.remove('bg-gray-50', 'border-gray-200');
+            btn.classList.add('bg-green-100', 'border-green-500');
+            indicator.textContent = '✓ Correct Answer';
+            indicator.className = 'result-indicator mt-2 text-xs font-medium text-green-700';
+        } else if (optionLetter === option) {
+            // Selected wrong answer - show in red
+            btn.classList.remove('bg-gray-50', 'border-gray-200');
+            btn.classList.add('bg-red-100', 'border-red-500');
+            indicator.textContent = '✗ Incorrect';
+            indicator.className = 'result-indicator mt-2 text-xs font-medium text-red-700';
+        }
+    });
+
+    // Show explanation if available
+    if (question.explanation) {
+        // Find or create explanation div
+        let explanationDiv = document.getElementById('question-explanation');
+        if (!explanationDiv) {
+            explanationDiv = document.createElement('div');
+            explanationDiv.id = 'question-explanation';
+            explanationDiv.className = 'mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded';
+            document.getElementById('options-container').parentNode.appendChild(explanationDiv);
+        }
+        
+        explanationDiv.innerHTML = `
+            <h4 class="font-semibold text-blue-800 mb-2">Explanation:</h4>
+            <p class="text-blue-700 text-sm">${question.explanation}</p>
+        `;
+        explanationDiv.classList.remove('hidden');
+    }
+
+    // Update score display
+    const correctCount = userAnswers.filter((answer, index) => 
+        answer === sessionQuestions[index]?.correct_option).length;
+    document.getElementById('score-display').textContent = `Score: ${correctCount}/${userAnswers.filter(a => a).length}`;
+}
+
+// Enhanced navigation functions
+function updateNavigation(currentSection) {
+    const navButtons = document.querySelectorAll('.nav-btn');
+    navButtons.forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white');
+        btn.classList.add('text-gray-600');
+    });
+
+    const activeBtn = document.querySelector(`[onclick*="${currentSection}"]`);
+    if (activeBtn) {
+        activeBtn.classList.remove('text-gray-600');
+        activeBtn.classList.add('bg-blue-600', 'text-white');
+    }
+}
+
+// Utility functions for local storage
+function saveSession(sessionData) {
+    const sessionHistory = getSessionHistory();
+    sessionHistory.push(sessionData);
+    localStorage.setItem('sessionHistory', JSON.stringify(sessionHistory));
+}
+
+function getSessionHistory() {
+    const history = localStorage.getItem('sessionHistory');
+    return history ? JSON.parse(history) : [];
+}
+
+function getUserStats() {
+    const sessions = getSessionHistory();
+    const stats = {
+        totalSessions: sessions.length,
+        totalScore: 0,
+        topicScores: {},
+        completedTopics: new Set()
+    };
+
+    sessions.forEach(session => {
+        stats.totalScore += session.score;
+        
+        if (!stats.topicScores[session.topicName]) {
+            stats.topicScores[session.topicName] = [];
+        }
+        stats.topicScores[session.topicName].push(session.score);
+        
+        if (session.score >= 70) {
+            stats.completedTopics.add(session.topicName);
+        }
+    });
+
+    // Calculate average scores for each topic
+    Object.keys(stats.topicScores).forEach(topic => {
+        const scores = stats.topicScores[topic];
+        stats.topicScores[topic] = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    });
+
+    stats.averageScore = sessions.length > 0 ? Math.round(stats.totalScore / sessions.length) : 0;
+    stats.completedTopics = Array.from(stats.completedTopics);
+
+    return stats;
+}
+
+function getTopicProgress(topicId) {
+    const sessions = getSessionHistory().filter(s => s.topicId == topicId);
+    
+    if (sessions.length === 0) {
+        return { percentage: 0, bestScore: 0, avgScore: 0, sessions: 0 };
+    }
+    
+    const scores = sessions.map(s => s.score);
+    const bestScore = Math.max(...scores);
+    const avgScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    
+    return {
+        percentage: bestScore,
+        bestScore: bestScore,
+        avgScore: avgScore,
+        sessions: sessions.length
+    };
+}
+
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+// Dashboard loading function
+async function loadDashboard() {
+    const userStats = getUserStats();
+    
+    // Update dashboard stats if elements exist
+    const totalSessionsEl = document.getElementById('total-sessions');
+    if (totalSessionsEl) {
+        totalSessionsEl.textContent = userStats.totalSessions;
+    }
+    
+    const avgScoreEl = document.getElementById('average-score');
+    if (avgScoreEl) {
+        avgScoreEl.textContent = `${userStats.averageScore}%`;
+    }
+    
+    const completedTopicsEl = document.getElementById('completed-topics');
+    if (completedTopicsEl) {
+        completedTopicsEl.textContent = userStats.completedTopics.length;
+    }
+}
+
+
+
+
+
+
+
+function showInstallPopup() {
+    markInstallAttempted(); // Mark that user has attempted installation
+    document.getElementById('install-popup-overlay').classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevent background scroll
+}
+
+function hideInstallPopup() {
+    document.getElementById('install-popup-overlay').classList.add('hidden');
+    document.body.style.overflow = 'auto'; // Restore background scroll
+}
+
+// Check if app is installed (PWA)
+function isAppInstalled() {
+    // Check if user has already attempted installation (optional localStorage check)
+    if (localStorage.getItem('pwa-install-attempted') === 'true') {
+        return true;
+    }
+    
+    // Check if app is running in standalone mode (installed PWA)
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        return true;
+    }
+    
+    // Check for iOS Safari standalone mode
+    if (window.navigator.standalone === true) {
+        return true;
+    }
+    
+    // Check if launched from home screen on Android
+    if (document.referrer.includes('android-app://')) {
+        return true;
+    }
+    
+    // Additional check for some browsers (minimal-ui mode)
+    if (window.matchMedia('(display-mode: minimal-ui)').matches) {
+        return true;
+    }
+    
+    // Check for fullscreen mode (some PWAs use this)
+    if (window.matchMedia('(display-mode: fullscreen)').matches) {
+        return true;
+    }
+    
+    // Check if running in a WebView (Android app wrapper)
+    if (window.navigator.userAgent.includes('wv')) {
+        return true;
+    }
+    
+    // Check for specific PWA indicators in URL or query parameters
+    if (window.location.search.includes('utm_source=homescreen') || 
+        window.location.search.includes('source=pwa')) {
+        return true;
+    }
+    
+    // Check if window.navigator.getInstalledRelatedApps is available and has results
+    if ('getInstalledRelatedApps' in window.navigator) {
+        // This is async, so we'll use a fallback approach
+        window.navigator.getInstalledRelatedApps().then(relatedApps => {
+            if (relatedApps.length > 0) {
+                // App is installed, update UI
+                document.getElementById('install-button-container').classList.add('hidden');
+            }
+        }).catch(() => {
+            // Ignore errors, continue with other checks
+        });
+    }
+    
+    // Check for Chrome/Edge PWA specific indicators
+    if (window.chrome && window.chrome.app && window.chrome.app.isInstalled) {
+        return true;
+    }
+    
+    // Check if app was opened from a PWA context
+    if (window.matchMedia('(display-mode: browser)').matches === false) {
+        return true;
+    }
+    
+    return false;
+}
+
+// Mark installation as attempted (call this when user clicks install)
+function markInstallAttempted() {
+    try {
+        localStorage.setItem('pwa-install-attempted', 'true');
+    } catch (e) {
+        // Handle localStorage errors gracefully
+        console.log('Could not save install state');
+    }
+}
+
+// Reset install state (useful for testing)
+function resetInstallState() {
+    try {
+        localStorage.removeItem('pwa-install-attempted');
+        toggleInstallButton();
+    } catch (e) {
+        console.log('Could not reset install state');
+    }
+}
+
+// Show/hide install button based on current section and installation status
+function toggleInstallButton() {
+    const installContainer = document.getElementById('install-button-container');
+    const homeSection = document.getElementById('home-section');
+    
+    // Hide button if app is already installed
+    if (isAppInstalled()) {
+        installContainer.classList.add('hidden');
+        return;
+    }
+    
+    // Show/hide based on current section
+    if (homeSection && !homeSection.classList.contains('hidden')) {
+        installContainer.classList.remove('hidden');
+    } else {
+        installContainer.classList.add('hidden');
+    }
+}
+
+// Close popup when pressing Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        hideInstallPopup();
+    }
+});
+
+// Initialize install button visibility on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleInstallButton();
+    
+    // Listen for display mode changes (when app gets installed)
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', function(e) {
+        toggleInstallButton();
+    });
+});
+    
+
+
+// function showInstallPopup() {
+//     document.getElementById('install-popup-overlay').classList.remove('hidden');
+//     document.body.style.overflow = 'hidden'; // Prevent background scroll
+// }
+
+// function hideInstallPopup() {
+//     document.getElementById('install-popup-overlay').classList.add('hidden');
+//     document.body.style.overflow = 'auto'; // Restore background scroll
+// }
+
+// // Show/hide install button based on current section
+// function toggleInstallButton() {
+//     const installContainer = document.getElementById('install-button-container');
+//     const homeSection = document.getElementById('home-section');
+    
+//     if (homeSection && !homeSection.classList.contains('hidden')) {
+//         installContainer.classList.remove('hidden');
+//     } else {
+//         installContainer.classList.add('hidden');
+//     }
+// }
+
+// // Close popup when pressing Escape key
+// document.addEventListener('keydown', function(event) {
+//     if (event.key === 'Escape') {
+//         hideInstallPopup();
+//     }
+// });
+
+// // Initialize install button visibility on page load
+// document.addEventListener('DOMContentLoaded', function() {
+//     toggleInstallButton();
+// });
+    
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', function() {
+    if (initializeSupabase()) {
+        setupBackButtonHandling();
+        showSection('home');
+        console.log('Application initialized successfully');
+    } else {
+        console.error('Failed to initialize application');
+    }
+});
+    </script>
+</body>
+</html>
